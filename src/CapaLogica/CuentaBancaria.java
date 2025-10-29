@@ -1,13 +1,14 @@
 package CapaLogica;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
-public class CuentaBancaria {
+public abstract class CuentaBancaria {
 	private static int numeroCuentaBancaria = 0;
 	private double saldo;
 	private String alias;
@@ -16,6 +17,7 @@ public class CuentaBancaria {
 	private Usuario usuario;
 	private LocalDate fechaCreacion;
 	private LinkedList <Movimiento> movimientos;
+	private Rol rol;
 	
 	public CuentaBancaria(Usuario usuario, String email, String contrasenia) {
 		this.saldo = 0;
@@ -26,6 +28,10 @@ public class CuentaBancaria {
 		this.contrasenia = contrasenia;
 		numeroCuentaBancaria++;
 		this.alias = usuario.getNombre() + numeroCuentaBancaria;
+	}
+	
+	public void realizarAcciones(String [] opciones) {
+
 	}
 	
 	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
@@ -73,7 +79,7 @@ public class CuentaBancaria {
 			}
 		} while (contrasenia.isEmpty() || !contraseniaConfirmada.equals(contrasenia));
 		
-		return new CuentaBancaria(usuario, email, contrasenia);
+		return new CuentaCliente(usuario, email, contrasenia);
 	}
 	
 	
@@ -257,6 +263,48 @@ public class CuentaBancaria {
 		return string;
 	}
 	
+	public String verMovimientosRecientes() {
+		List <Movimiento> movimientosRecientes = this.movimientos.stream()
+				.sorted(Comparator.comparing(Movimiento::getFecha).reversed())
+				.collect(Collectors.toList());
+		
+		String string = "";
+		
+		for (Movimiento movimiento : movimientosRecientes) {
+			string += "\n" + movimiento;
+		}
+		
+		return string;
+	}
+	
+	public String verMovimientosMayorMonto() {
+		List <Movimiento> movimientosMontoMayor = this.movimientos.stream()
+				.sorted(Comparator.comparing(Movimiento::getMonto).reversed())
+				.collect(Collectors.toList());
+		
+		String string = "";
+		
+		for (Movimiento movimiento : movimientosMontoMayor) {
+			string += "\n" + movimiento;
+		}
+		
+		return string;
+	}
+	
+	public String verMovimientosMenorMonto() {
+		List <Movimiento> movimientosMontoMayor = this.movimientos.stream()
+				.sorted(Comparator.comparing(Movimiento::getMonto))
+				.collect(Collectors.toList());
+		
+		String string = "";
+		
+		for (Movimiento movimiento : movimientosMontoMayor) {
+			string += "\n" + movimiento;
+		}
+		
+		return string;
+	}
+	
 	public String incluirTernaria(String string) {
 		return string.isEmpty() ? "Ninguno" : string;
 	}
@@ -386,5 +434,13 @@ public class CuentaBancaria {
 
 	public void setAlias(String alias) {
 		this.alias = alias;
+	}
+	
+	public Rol getRol() {
+		return rol;
+	}
+	
+	public void setRol(Rol rol) {
+		this.rol = rol;
 	}
 }

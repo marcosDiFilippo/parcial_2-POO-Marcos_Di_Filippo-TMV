@@ -190,10 +190,6 @@ public class Usuario {
 		return false;
 	}
 	
-	public void verificarCampoCoincidente() {
-		
-	}
-	
 	public String verInformacion() {
 		return "Nombre Completo: " + nombre + " " + apellido 
 				+ "\nFecha Nacimiento: " + fechaNacimiento
