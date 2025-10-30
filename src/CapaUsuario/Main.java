@@ -8,7 +8,6 @@ import CapaLogica.Banco;
 import CapaLogica.CuentaAdministrador;
 import CapaLogica.CuentaBancaria;
 import CapaLogica.CuentaCliente;
-import CapaLogica.Rol;
 import CapaLogica.Usuario;
 
 public class Main {
@@ -53,7 +52,7 @@ public class Main {
 					switch (opcionElegida) {
 					case 0:
 						cuentaBancaria.getMovimientos().add(cuentaBancaria.depositarDinero());
-						break;
+						break;	
 					case 1:
 						cuentaBancaria.retirarDinero();
 						break;
