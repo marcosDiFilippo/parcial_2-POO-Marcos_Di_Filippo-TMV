@@ -30,7 +30,6 @@ public class Usuario {
 		String apellido;
 		
 		String anio;
-		String dia;
 		
 		String telefono;
 		String dni;
@@ -61,42 +60,27 @@ public class Usuario {
 			if (campoVacio == true) {
 				continue;
 			}
-			
-			if (hoy.getYear() < Integer.parseInt(anio)) {
-				JOptionPane.showMessageDialog(null, "El anio ingresado es posterior al actual, por favor vuelva ingresar");
-				continue;
-			}
+
 			fechaTieneLetras = verificarLetrasCampos(anio, "anio");
 			
 			if (fechaTieneLetras == true) {
 				continue;
 			}
-		} while (anio.isEmpty() || hoy.getYear() < Integer.parseInt(anio) || fechaTieneLetras == true);
-		
-		Mes mes = (Mes) JOptionPane.showInputDialog(null, "Ingrese su mes de nacimiento", "", 0, null, Mes.values(), Mes.values()[0]);
-		
-		fechaTieneLetras = false;
-		do {
-			dia = JOptionPane.showInputDialog("Ingrese su dia de nacimiento");
 			
-			if (dia.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "El campo dia son obligatorios por favor vuelva ingresar");
-			}
-			fechaTieneLetras = verificarLetrasCampos(dia, "dia");
-			
-			if (fechaTieneLetras == true) { 
+			if (hoy.getYear() < Integer.parseInt(anio)) {
+				JOptionPane.showMessageDialog(null, "El anio ingresado es posterior al actual, por favor vuelva ingresar");
+				fechaDespuesDeHoy = true;
 				continue;
 			}
-			try {
-				LocalDate.of(Integer.parseInt(anio), mes.getNumero(), Integer.parseInt(dia));
-				fechaDespuesDeHoy = false;
-			} catch (Exception e) {
-				fechaDespuesDeHoy = true;
-			}
-			if (fechaDespuesDeHoy == true) {
-				JOptionPane.showMessageDialog(null, "El dia de fecha ingresado no es valido, " + mes + " no tiene el dia numero " + Integer.parseInt(dia));
-			}
-		} while (dia.isEmpty() || fechaTieneLetras == true || fechaDespuesDeHoy == true);
+		} while (campoVacio == true || fechaDespuesDeHoy == true || fechaTieneLetras == true);
+		
+		Mes mes = (Mes) JOptionPane.showInputDialog(null, "Elija su mes de nacimiento", "", 0, null, Mes.values(), Mes.values()[0]);
+		
+		for (Integer i = 0; i < mes.getDias().length; i++) {
+			mes.getDias()[i] = String.valueOf(i + 1);
+		}
+		
+		int dia = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Elija su dia de nacimiento", "", 0, null, mes.getDias(), mes.getDias()[0]));
 		
 		do {
 			dni = JOptionPane.showInputDialog("Ingrese su dni");
@@ -140,7 +124,7 @@ public class Usuario {
 			}
 		} while (telefono.isEmpty() || Integer.parseInt(telefono) < 0 || existeTelefono == true);
 		
-		return new Usuario(nombre, apellido, LocalDate.of(Integer.parseInt(anio), mes.getNumero(), Integer.parseInt(dia)), telefono, dni);
+		return new Usuario(nombre, apellido, LocalDate.of(Integer.parseInt(anio), mes.getNumero(), dia), telefono, dni);
 	}
 	
 	public static CuentaBancaria iniciarSesion(Banco banco) {

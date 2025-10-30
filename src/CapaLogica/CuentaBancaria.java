@@ -17,6 +17,7 @@ public abstract class CuentaBancaria {
 	private Usuario usuario;
 	private LocalDate fechaCreacion;
 	private LinkedList <Movimiento> movimientos;
+	private LinkedList <CuentaBancaria> contactos;
 	private Rol rol;
 	
 	public CuentaBancaria(Usuario usuario, String email, String contrasenia) {
@@ -24,6 +25,7 @@ public abstract class CuentaBancaria {
 		this.usuario = usuario;
 		this.fechaCreacion = LocalDate.now();
 		this.movimientos = new LinkedList<Movimiento>();
+		this.contactos = new LinkedList<CuentaBancaria>();
 		this.email = email;
 		this.contrasenia = contrasenia;
 		numeroCuentaBancaria++;
@@ -168,23 +170,93 @@ public abstract class CuentaBancaria {
 		this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, new MedioOperacion(nombreMedio, comision)));
 	}
 	
+	public String[] incluirContactos() {
+		String [] contactos = new String[this.contactos.size()];
+		
+		for (int i = 0; i < contactos.length; i++) {
+			String nombre = this.contactos.get(i).getUsuario().getNombre();
+			String apellido = this.contactos.get(i).getUsuario().getApellido();
+			String alias = this.contactos.get(i).getAlias();
+			contactos[i] = nombre + " " + apellido + " - Alias: " + alias;
+		}
+		
+		return contactos;
+	}
+	
 	public void transferirDinero(Banco banco) {
 		if (verificarSaldo() == true) {
 			return;
 		}
+		String [] contactos = incluirContactos();
+		
+		String [] opciones = {"Lista contactos", "Por alias"};
 		
 		List <CuentaBancaria> cuentasBancarias = banco.getCuentasBancarias().stream()
 			.filter(cuenta -> !cuenta.getAlias().equals(this.alias))
 			.collect(Collectors.toList());
-		
-		String aliasBuscado;
+
+		CuentaBancaria cuentaTransferida = null;
 		String monto = "";
-		String detalles = "";
-		boolean seEncontroAlias = false;
-		boolean tieneLetras = false;
 		boolean esMenorACero = false;
 		boolean esVacio = false;
-		CuentaBancaria cuentaTransferida = null;
+		boolean tieneLetras = false;
+		boolean montoMayorSaldo = false;
+		String detalles = "";
+		
+		int opcionElegida = JOptionPane.showOptionDialog(null, "Como quiere realizar la transferencia?", "", 0, 0, null, opciones, opciones[0]);
+		
+		if (opcionElegida == 0) {
+			if (contactos.length == 0) {
+				JOptionPane.showMessageDialog(null, "No tienes un historial de contactos");
+				return;
+			}
+			String cuentaString = (String) JOptionPane.showInputDialog(null, "Contactos", "", 0, null, contactos, contactos[0]);
+			
+			for (CuentaBancaria contacto : this.contactos) {
+				String nombre = contacto.getUsuario().getNombre();
+				String apellido = contacto.getUsuario().getApellido();
+				String alias = contacto.getAlias();
+				String usuario = nombre + " " + apellido + " - Alias: " + alias;
+				
+				if (cuentaString.equals(usuario)) {
+					cuentaTransferida = contacto;
+					do {
+						monto = JOptionPane.showInputDialog("Ingrese el monto (solo numeros) para la transferencia hacia " + cuentaTransferida.getUsuario().getNombre() + " " + cuentaTransferida.getUsuario().getApellido() + "\nAlias: " + cuentaTransferida.getAlias());
+						
+						esVacio = validarCampoVacio(monto, "monto");
+						if (esVacio == true) {
+							continue;
+						}
+						
+						esMenorACero = verificarMontoNegativo(Double.parseDouble(monto));
+						if (esMenorACero == true) {
+							continue;
+						}
+						
+						montoMayorSaldo = validarMontoMayorSaldo(Double.parseDouble(monto));
+						if (montoMayorSaldo == true) {
+							continue;
+						}
+					} 
+					while (esVacio == true || esMenorACero == true || montoMayorSaldo == true);
+					saldo = saldo - Double.parseDouble(monto);
+					cuentaTransferida.actualizarSaldo(Double.parseDouble(monto));
+					
+					detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre la transferencia (opcional)");
+					
+					this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA));
+					cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento
+							.TRANSFERENCIA_RECIBIDA));
+					
+					break;
+				}
+			}
+			
+			return;
+		}
+		
+		String aliasBuscado;
+		boolean seEncontroAlias = false;
 		
 		do {
 			aliasBuscado = JOptionPane.showInputDialog("Ingrese el alias para realizar la transferencia");
@@ -210,17 +282,22 @@ public abstract class CuentaBancaria {
 				if (esVacio == true) {
 					continue;
 				}
+
+				tieneLetras = verificarLetrasMonto(monto);
+				if (tieneLetras == true) {
+					continue;
+				}
 				
 				esMenorACero = verificarMontoNegativo(Double.parseDouble(monto));
 				if (esMenorACero == true) {
 					continue;
 				}
 				
-				tieneLetras = verificarLetrasMonto(monto);
-				if (tieneLetras == true) {
+				montoMayorSaldo = validarMontoMayorSaldo(Double.parseDouble(monto));
+				if (montoMayorSaldo == true) {
 					continue;
 				}
-			} while (esMenorACero == true || tieneLetras == true || Double.parseDouble(monto) > saldo);
+			} while (esMenorACero == true || tieneLetras == true || montoMayorSaldo == true || esVacio == true);
 			saldo = saldo - Double.parseDouble(monto);
 			break;
 		} while (seEncontroAlias == false);
@@ -229,7 +306,12 @@ public abstract class CuentaBancaria {
 		
 		detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre la transferencia (opcional)");
 		
+		this.contactos.add(cuentaTransferida);
+		
 		this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA));
+		
+		cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento
+				.TRANSFERENCIA_RECIBIDA));
 	}
 	
 	public double calcularComision(NombreMedio nombreMedio, double monto) {
@@ -266,6 +348,7 @@ public abstract class CuentaBancaria {
 	public String verMovimientosRecientes() {
 		List <Movimiento> movimientosRecientes = this.movimientos.stream()
 				.sorted(Comparator.comparing(Movimiento::getFecha).reversed())
+				.sorted(Comparator.comparing(Movimiento::getHora).reversed())
 				.collect(Collectors.toList());
 		
 		String string = "";
@@ -442,5 +525,13 @@ public abstract class CuentaBancaria {
 	
 	public void setRol(Rol rol) {
 		this.rol = rol;
+	}
+	
+	public LinkedList<CuentaBancaria> getContactos() {
+		return contactos;
+	}
+	
+	public void setContactos(LinkedList<CuentaBancaria> contactos) {
+		this.contactos = contactos;
 	}
 }

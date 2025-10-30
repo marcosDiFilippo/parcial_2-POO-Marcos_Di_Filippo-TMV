@@ -1,5 +1,5 @@
 package CapaLogica;
 
 public enum Tipo_Movimiento {
-	DEPOSITO, RETIRO, TRANSFERENCIA;
+	DEPOSITO, RETIRO, TRANSFERENCIA, TRANSFERENCIA_RECIBIDA;
 }

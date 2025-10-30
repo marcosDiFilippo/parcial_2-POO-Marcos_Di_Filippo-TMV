@@ -43,11 +43,11 @@ public class Movimiento {
 				+ "\nDetalles: " + detalles 
 				+ "\nMonto: " + monto 
 				+ "\nNumero movimiento: " + numeroMovimiento
-				+ "\n"
-				+ "\nMedio: " + medioOperacion.getNombreMedio()
-				+ "\nComision: " + medioOperacion.getComision()
-				+ "\n"
-				+ "\nTotal: " + (monto - medioOperacion.getComision())
+				+ (medioOperacion != null ? 
+						"\n"
+						+"\nMedio: " + medioOperacion.getNombreMedio()
+						+ "\nComision: " + medioOperacion.getComision()
+						+ "\nTotal: " + (monto - medioOperacion.getComision()) : "")
 				+ "\n------------------------------------------------";
 	}
 
