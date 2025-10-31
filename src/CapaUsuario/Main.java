@@ -8,6 +8,7 @@ import CapaLogica.Banco;
 import CapaLogica.CuentaAdministrador;
 import CapaLogica.CuentaBancaria;
 import CapaLogica.CuentaCliente;
+import CapaLogica.Rol;
 import CapaLogica.Usuario;
 
 public class Main {
@@ -19,7 +20,7 @@ public class Main {
 		
 		Banco banco = new Banco("Galicia");
 		
-		banco.agregarCuentasBancarias(new CuentaAdministrador(new Usuario("marcos", "di filippo", LocalDate.of(2007, 6, 26), "35", "479"), "marcos@gmail.com", "marcos"));
+		banco.agregarCuentasBancarias(new CuentaAdministrador(new Usuario("maco", "di filippo", LocalDate.of(2007, 6, 26), "35", "479"), "maco@gmail.com", "maco"));
 		
 		banco.agregarCuentasBancarias(new CuentaCliente(new Usuario("marcos", "di filippo", LocalDate.of(2007, 6, 26), "3525", "47"), "marcos@gmail.com", "marcos"));
 		banco.agregarCuentasBancarias(new CuentaCliente(new Usuario("martin", "juncos", LocalDate.of(2005, 5, 5), "35253", "4734"), "martin@gmail.com", "martin"));
@@ -36,67 +37,21 @@ public class Main {
 				CuentaBancaria cuentaBancaria = Usuario.iniciarSesion(banco);
 				if (cuentaBancaria != null) {
 					JOptionPane.showMessageDialog(null, "Sesion iniciada con exito");
-					/*
 					if (cuentaBancaria.getRol().equals(Rol.CLIENTE)) {
-						cuentaBancaria.realizarAcciones(opcionesCliente);
-						JOptionPane.showMessageDialog(null, "cliente");
+						cuentaBancaria.realizarAcciones(opcionesCliente, opcionesMovimiento, banco);
 					}
 					else {
-						cuentaBancaria.realizarAcciones(opcionesAdministrador);
-						JOptionPane.showMessageDialog(null, "admin");
+						cuentaBancaria.realizarAcciones(opcionesAdministrador, opcionesMovimiento, banco);
 					}
-					*/
-					
-					do {
-						opcionElegida = JOptionPane.showOptionDialog(null, "Panel Usuario - " + cuentaBancaria.toString(), null, 0, 0, null, opcionesCliente, opcionesCliente[0]);
-					switch (opcionElegida) {
-					case 0:
-						cuentaBancaria.getMovimientos().add(cuentaBancaria.depositarDinero());
-						break;	
-					case 1:
-						cuentaBancaria.retirarDinero();
-						break;
-					case 2:
-						cuentaBancaria.transferirDinero(banco);
-						break;
-					case 3:
-						if (cuentaBancaria.getMovimientos().size() == 0) {
-							JOptionPane.showMessageDialog(null, "No hay movimientos cargados");
-							break;
-						}
-						opcionElegida = JOptionPane.showOptionDialog(null, "Que movimiento quiere ver?", "", 0, 0, null, opcionesMovimiento, opcionesMovimiento[0]);
-						switch (opcionElegida) {
-						case 0:
-							JOptionPane.showMessageDialog(null, cuentaBancaria.verMovimentos());
-							break;
-						case 1:
-							JOptionPane.showMessageDialog(null, cuentaBancaria.verMovimientosRecientes());
-							break;
-						case 2:
-							JOptionPane.showMessageDialog(null, cuentaBancaria.verMovimientosMayorMonto());
-							break;
-						case 3:
-							JOptionPane.showMessageDialog(null, cuentaBancaria.verMovimientosMenorMonto());
-							break;
-						default:
-							
-							break;
-						}
-						break;
-					default:
-						
-						break;
-						}	
-					} while (opcionElegida != 4);
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "No se ha encontrado la sesion");
 				}
 				break;
 			default:
-				JOptionPane.showMessageDialog(null, "Has salido");
+					JOptionPane.showMessageDialog(null, "Has salido");
 				break;
 			}
-		} while (opcionElegida != 2);
+		} while (opcionElegida != opciones.length - 1);	
 	}
 }

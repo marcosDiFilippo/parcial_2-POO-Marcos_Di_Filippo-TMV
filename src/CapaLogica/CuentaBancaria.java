@@ -32,9 +32,7 @@ public abstract class CuentaBancaria {
 		this.alias = usuario.getNombre() + numeroCuentaBancaria;
 	}
 	
-	public void realizarAcciones(String [] opciones) {
-
-	}
+	public abstract void realizarAcciones(String [] opciones, String [] opcionesMovimiento, Banco banco);
 	
 	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
 		String email;
@@ -83,7 +81,6 @@ public abstract class CuentaBancaria {
 		
 		return new CuentaCliente(usuario, email, contrasenia);
 	}
-	
 	
 	public Movimiento depositarDinero() {
 		String monto;
@@ -191,9 +188,7 @@ public abstract class CuentaBancaria {
 		
 		String [] opciones = {"Lista contactos", "Por alias"};
 		
-		List <CuentaBancaria> cuentasBancarias = banco.getCuentasBancarias().stream()
-			.filter(cuenta -> !cuenta.getAlias().equals(this.alias))
-			.collect(Collectors.toList());
+		List <CuentaBancaria> cuentasBancarias = banco.filtrarCuentas(this.alias);
 
 		CuentaBancaria cuentaTransferida = null;
 		String monto = "";
