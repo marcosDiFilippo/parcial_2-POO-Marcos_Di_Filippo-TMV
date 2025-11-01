@@ -305,6 +305,12 @@ public abstract class CuentaBancaria {
 		
 		this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA));
 		
+		JOptionPane.showMessageDialog(null, "---Se ha realizado la transferencia---\n"
+				+ "\n➡️Tu Cuenta: \n" + toString()
+				+ "\n--------------------------------------------------------------------------\n"
+				+ "\n➡️Cuenta transferida: \n"
+				+ cuentaTransferida.toString());
+		
 		cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento
 				.TRANSFERENCIA_RECIBIDA));
 	}
@@ -438,10 +444,10 @@ public abstract class CuentaBancaria {
 	
 	@Override
 	public String toString() {
-		return "Saldo: " + saldo 
-				+ "\nAlias: " + alias 
-				+ "\nEmail: " + email 
-				+ "\nFecha creacion cuenta: " + fechaCreacion
+		return " 💵 Saldo: " + saldo 
+				+ "\n 💬 Alias: " + alias 
+				+ "\n 📩 Email: " + email 
+				+ "\n 📅 Fecha creacion cuenta: " + fechaCreacion
 				+ "\n--------------------------------------------------------------------------"
 				+ "\n" + usuario.verInformacion() ;
 	}

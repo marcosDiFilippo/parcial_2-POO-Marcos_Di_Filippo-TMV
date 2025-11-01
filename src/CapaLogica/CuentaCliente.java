@@ -51,9 +51,14 @@ public class CuentaCliente extends CuentaBancaria  {
 				}
 				break;
 			default:
-				
+				JOptionPane.showMessageDialog(null, "Has cerrado sesion");
 				break;
 				}	
 		} while (opcion !=  opciones.length - 1);
+	}
+	
+	@Override
+	public void transferirDinero(Banco banco) {
+		super.transferirDinero(banco);
 	}
 }

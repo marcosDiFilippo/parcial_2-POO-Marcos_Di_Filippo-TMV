@@ -63,10 +63,10 @@ public class CuentaAdministrador extends CuentaBancaria {
 				}
 				break;
 			default:
-				
+				JOptionPane.showMessageDialog(null, "Has cerrado sesion");
 				break;
 			}	
-		} while (opcion !=  opciones.length - 1);
+		} while (opcion != opciones.length - 1);
 	}
 	
 	public void eliminarUsuarios(Banco banco) {
@@ -111,7 +111,6 @@ public class CuentaAdministrador extends CuentaBancaria {
 			usuarios[i] = cuentasBancarias.get(i).getEmail();
 		}
 		
-		
 		String email = (String) JOptionPane.showInputDialog(null, "A que usuario desea modificar los roles?", "", 0, null, usuarios, usuarios[0]);
 		
 		for (CuentaBancaria cuenta : cuentasBancarias) {
@@ -142,5 +141,10 @@ public class CuentaAdministrador extends CuentaBancaria {
 				return;
 			}
 		}
+	}
+	
+	@Override
+	public void transferirDinero(Banco banco) {
+		super.transferirDinero(banco);
 	}
 }
