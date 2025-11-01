@@ -32,6 +32,18 @@ public abstract class CuentaBancaria {
 		this.alias = usuario.getNombre() + numeroCuentaBancaria;
 	}
 	
+	public CuentaBancaria(CuentaBancaria cuentaBancaria) {
+		this.saldo = cuentaBancaria.getSaldo();
+		this.usuario = cuentaBancaria.getUsuario();
+		this.fechaCreacion = cuentaBancaria.getFechaCreacion();
+		this.movimientos = cuentaBancaria.getMovimientos();
+		this.contactos = cuentaBancaria.getContactos();
+		this.email = cuentaBancaria.getEmail();
+		this.contrasenia = cuentaBancaria.getContrasenia();
+		this.alias = cuentaBancaria.getAlias();
+		this.rol = cuentaBancaria.getRol();
+	}
+
 	public abstract void realizarAcciones(String [] opciones, String [] opcionesMovimiento, Banco banco);
 	
 	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
@@ -413,6 +425,7 @@ public abstract class CuentaBancaria {
 	
 	public boolean validarMontoMayorSaldo(double monto) {
 		if (monto > saldo) {
+			JOptionPane.showMessageDialog(null, "El monto ingresado: " + monto + " es mayor al saldo actual -" + saldo + "-");
 			return true;
 		}
 		return false;

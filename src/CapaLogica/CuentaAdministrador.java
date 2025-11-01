@@ -20,51 +20,51 @@ public class CuentaAdministrador extends CuentaBancaria {
 			opcion = JOptionPane.showOptionDialog(null, toString(), "", 0, 0, null, opciones, opciones[0]);
 			
 			switch (opcion) {
-			case 0:
-				getMovimientos().add(depositarDinero());
-				break;	
-			case 1:
-				retirarDinero();
-				break;
-			case 2:
-				transferirDinero(banco);
-				break;
-			case 3:
-				if (getMovimientos().size() == 0) {
-					JOptionPane.showMessageDialog(null, "No hay movimientos cargados");
+				case 0:
+					getMovimientos().add(depositarDinero());
+					break;	
+				case 1:
+					retirarDinero();
 					break;
-				}
-				opcion = JOptionPane.showOptionDialog(null, "Que movimiento quiere ver?", "", 0, 0, null, opcionesMovimiento, opcionesMovimiento[0]);
-				switch (opcion) {
-					case 0:
-						JOptionPane.showMessageDialog(null, verMovimentos());
+				case 2:
+					transferirDinero(banco);
+					break;
+				case 3:
+					if (getMovimientos().size() == 0) {
+						JOptionPane.showMessageDialog(null, "No hay movimientos cargados");
 						break;
-					case 1:
-						JOptionPane.showMessageDialog(null, verMovimientosRecientes());
-						break;
-					case 2:
-						JOptionPane.showMessageDialog(null, verMovimientosMayorMonto());
-						break;
-					case 3:
-						JOptionPane.showMessageDialog(null, verMovimientosMenorMonto());
-						break;
-					default:
-						
-						break;
-				}
-				break;
-			case 4:
-				opcion = JOptionPane.showOptionDialog(null, "Opciones cuentas", "", 0, 0, null, permisos, permisos[0]);
-				if (opcion == 0) {
-					eliminarUsuarios(banco);
-				}
-				else if (opcion == 1) {
-					cambiarRoles(banco);
-				}
-				break;
-			default:
-				JOptionPane.showMessageDialog(null, "Has cerrado sesion");
-				break;
+					}
+					opcion = JOptionPane.showOptionDialog(null, "Que movimiento quiere ver?", "", 0, 0, null, opcionesMovimiento, opcionesMovimiento[0]);
+					switch (opcion) {
+						case 0:
+							JOptionPane.showMessageDialog(null, verMovimentos());
+							break;
+						case 1:
+							JOptionPane.showMessageDialog(null, verMovimientosRecientes());
+							break;
+						case 2:
+							JOptionPane.showMessageDialog(null, verMovimientosMayorMonto());
+							break;
+						case 3:
+							JOptionPane.showMessageDialog(null, verMovimientosMenorMonto());
+							break;
+						default:
+							
+							break;
+					}
+					break;
+				case 4:
+					opcion = JOptionPane.showOptionDialog(null, "Opciones cuentas", "", 0, 0, null, permisos, permisos[0]);
+					if (opcion == 0) {
+						eliminarUsuarios(banco);
+					}
+					else if (opcion == 1) {
+						cambiarRoles(banco);
+					}
+					break;
+				default:
+					JOptionPane.showMessageDialog(null, "Has cerrado sesion");
+					break;
 			}	
 		} while (opcion != opciones.length - 1);
 	}
@@ -113,10 +113,18 @@ public class CuentaAdministrador extends CuentaBancaria {
 		
 		String email = (String) JOptionPane.showInputDialog(null, "A que usuario desea modificar los roles?", "", 0, null, usuarios, usuarios[0]);
 		
+		int index = 0;
+		
 		for (CuentaBancaria cuenta : cuentasBancarias) {
+			index++;
 			if (cuenta.getEmail().equals(email)) {
 				Rol rol;
-				int opcionRol = JOptionPane.showOptionDialog(null, "Elija el rol para el usuario: \n" + cuenta.toString(), "", 0, 0, null, Rol.values(), Rol.values()[0]);
+				int opcionRol = JOptionPane.showOptionDialog(null, 
+					"Elija el rol para el usuario: \n" 
+					+ cuenta.toString() 
+					+ "\n-----------------------------------"
+					+ "\nROL ACTUAL: " + cuenta.getRol()
+				, "", 0, 0, null, Rol.values(), Rol.values()[0]);
 				
 				if (opcionRol == 0) {
 					rol = Rol.CLIENTE;
@@ -132,6 +140,8 @@ public class CuentaAdministrador extends CuentaBancaria {
 					
 					cuenta.setRol(rol);
 					
+					banco.getCuentasBancarias().set(index, CuentaAdministrador.crearNuevoAdministrador(cuenta));
+					
 					mensaje += "\nRol asignado: " + cuenta.getRol();
 					
 					JOptionPane.showMessageDialog(null, mensaje);
@@ -141,6 +151,15 @@ public class CuentaAdministrador extends CuentaBancaria {
 				return;
 			}
 		}
+	}
+
+	public CuentaAdministrador(CuentaBancaria cuentaBancaria) {
+		super(cuentaBancaria);
+	}
+
+	public static CuentaAdministrador crearNuevoAdministrador(CuentaBancaria cuentaBancaria) {
+		
+		return new CuentaAdministrador(cuentaBancaria);
 	}
 	
 	@Override
