@@ -99,6 +99,7 @@ public abstract class CuentaBancaria {
 		boolean esVacio;
 		boolean esNegativo = false;
 		boolean tieneLetras = false;
+		boolean mayorAlLimite = false;
 		
 		NombreMedio nombreMedio = (NombreMedio) JOptionPane.showInputDialog(null, "Elija el medio para realizar el deposito", "", 0, null, NombreMedio.values(), NombreMedio.values()[0]);
 
@@ -119,6 +120,11 @@ public abstract class CuentaBancaria {
 			if (esNegativo == true) {
 				continue;
 			}
+			
+			mayorAlLimite = validarDepositoMayorLimite(monto);
+			if (mayorAlLimite == true) {
+				continue;
+			}
 		} while (tieneLetras == true || esVacio == true || esNegativo == true);
 		
 		String detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
@@ -126,6 +132,14 @@ public abstract class CuentaBancaria {
 		double comision = calcularComision(nombreMedio, Double.parseDouble(monto));
 		
 		return new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, new MedioOperacion(nombreMedio, comision));
+	}
+	
+	public boolean validarDepositoMayorLimite(String campo) {
+		if (Double.parseDouble(campo) > 200000) {
+			JOptionPane.showMessageDialog(null, "El monto ingresado es mayor al limite (200000), por favor vuelva ingresar");
+			return true;
+		}
+		return false;
 	}
 	
 	public void retirarDinero() {
