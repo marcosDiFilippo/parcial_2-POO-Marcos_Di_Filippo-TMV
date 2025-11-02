@@ -121,20 +121,27 @@ public abstract class CuentaBancaria {
 				continue;
 			}
 			
-			mayorAlLimite = validarDepositoMayorLimite(monto);
+			mayorAlLimite = validarDeposito(monto);
 			if (mayorAlLimite == true) {
 				continue;
 			}
-		} while (tieneLetras == true || esVacio == true || esNegativo == true);
+		} while (tieneLetras == true || esVacio == true || esNegativo == true || mayorAlLimite == true);
 		
 		String detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
 		
-		double comision = calcularComision(nombreMedio, Double.parseDouble(monto));
+		double comision = 0;
+
+		if (Double.parseDouble(monto) > 100000) {
+			comision = calcularComision(nombreMedio, Double.parseDouble(monto));
+			JOptionPane.showMessageDialog(null, "El monto depositado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
+		}
+		
+		actualizarSaldo(Double.parseDouble(monto));
 		
 		return new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, new MedioOperacion(nombreMedio, comision));
 	}
 	
-	public boolean validarDepositoMayorLimite(String campo) {
+	public boolean validarDeposito(String campo) {
 		if (Double.parseDouble(campo) > 200000) {
 			JOptionPane.showMessageDialog(null, "El monto ingresado es mayor al limite (200000), por favor vuelva ingresar");
 			return true;
@@ -188,7 +195,12 @@ public abstract class CuentaBancaria {
 		
 		saldo = saldo - Double.parseDouble(monto);
 		
-		double comision = calcularComision(nombreMedio, Double.parseDouble(monto));
+		double comision = 0;
+		
+		if (Double.parseDouble(monto) > 100000) {			
+			comision = calcularComision(nombreMedio, Double.parseDouble(monto));
+			JOptionPane.showMessageDialog(null, "El monto retirado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
+		}
 		
 		this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, new MedioOperacion(nombreMedio, comision)));
 	}
@@ -422,6 +434,9 @@ public abstract class CuentaBancaria {
 	public boolean verificarLetrasMonto(String monto) {
 		for (int i = 0; i < monto.length(); i++) {
 			if (!Character.isDigit(monto.charAt(i))) {
+				if (monto.charAt(i) == '.') {
+					continue;
+				}
 				JOptionPane.showMessageDialog(null, "El monto no puede contener letras, por favor vuelva ingresar");
 				return true;
 			}
