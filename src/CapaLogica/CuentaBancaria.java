@@ -9,16 +9,16 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 public abstract class CuentaBancaria {
-	private static int numeroCuentaBancaria = 0;
-	private double saldo;
-	private String alias;
-	private String email;
-	private String contrasenia;
-	private Usuario usuario;
-	private LocalDate fechaCreacion;
-	private LinkedList <Movimiento> movimientos;
-	private LinkedList <CuentaBancaria> contactos;
-	private Rol rol;
+	protected static int numeroCuentaBancaria = 0;
+	protected double saldo;
+	protected String alias;
+	protected String email;
+	protected String contrasenia;
+	protected Usuario usuario;
+	protected LocalDate fechaCreacion;
+	protected LinkedList <Movimiento> movimientos;
+	protected LinkedList <CuentaBancaria> contactos;
+	protected Rol rol;
 	
 	public CuentaBancaria(Usuario usuario, String email, String contrasenia) {
 		this.saldo = 0;
@@ -44,7 +44,7 @@ public abstract class CuentaBancaria {
 		this.rol = cuentaBancaria.getRol();
 	}
 
-	public abstract void realizarAcciones(String [] opciones, String [] opcionesMovimiento, Banco banco);
+	public abstract void realizarAcciones(String [] opciones, String [] opcionesMovimiento, String [] movimientosCategoria ,Banco banco);
 	
 	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
 		String email;
@@ -104,7 +104,8 @@ public abstract class CuentaBancaria {
 		NombreMedio nombreMedio = (NombreMedio) JOptionPane.showInputDialog(null, "Elija el medio para realizar el deposito", "", 0, null, NombreMedio.values(), NombreMedio.values()[0]);
 
 		do {
-			monto = JOptionPane.showInputDialog("Ingrese el monto de deposito (solo numeros)");
+			monto = JOptionPane.showInputDialog("Ingrese el monto "
+					+ "de deposito (solo numeros)");
 			
 			esVacio = validarCampoVacio(monto, "monto");
 			if (esVacio == true) {
@@ -130,13 +131,18 @@ public abstract class CuentaBancaria {
 		String detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
 		
 		double comision = 0;
-
+		double total = 0;
+		
 		if (Double.parseDouble(monto) > 100000) {
 			comision = calcularComision(nombreMedio, Double.parseDouble(monto));
-			JOptionPane.showMessageDialog(null, "El monto depositado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
+			total = Double.parseDouble(monto) - comision;
+			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + total);
+		}
+		else {
+			total = Double.parseDouble(monto);
 		}
 		
-		actualizarSaldo(Double.parseDouble(monto));
+		actualizarSaldo(total);
 		
 		return new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, new MedioOperacion(nombreMedio, comision));
 	}
@@ -355,7 +361,6 @@ public abstract class CuentaBancaria {
 	
 	public double calcularComision(NombreMedio nombreMedio, double monto) {
 		double comision = 0;
-		double total = 0;
 		
 		if (nombreMedio == NombreMedio.RAPIPAGO) {
 			comision = monto / 5;
@@ -366,10 +371,6 @@ public abstract class CuentaBancaria {
 		else {
 			comision = monto / 15;
 		}
-		
-		total = monto - comision;
-		
-		actualizarSaldo(total);
 		
 		return comision;
 	}
@@ -425,6 +426,25 @@ public abstract class CuentaBancaria {
 		}
 		
 		return string;
+	}
+	
+	public void verMovimientosPorCategoria(Tipo_Movimiento tipo_Movimiento) {
+		String mensaje = "";
+		
+		List <Movimiento> movimientosFiltrados = this.movimientos.stream()
+			.filter(movimiento -> movimiento.getTipo_Movimiento().equals(tipo_Movimiento))
+			.collect(Collectors.toList());
+		
+		if (movimientosFiltrados.size() == 0) {
+			JOptionPane.showMessageDialog(null, "No hay " + tipo_Movimiento + " realizados");
+			return;
+		}
+		
+		for (int i = 0; i < movimientosFiltrados.size(); i++) {
+			mensaje += movimientosFiltrados.get(i).toString() + "\n";
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
 	}
 	
 	public String incluirTernaria(String string) {

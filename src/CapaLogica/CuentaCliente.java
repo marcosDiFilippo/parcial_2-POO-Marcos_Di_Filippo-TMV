@@ -10,7 +10,7 @@ public class CuentaCliente extends CuentaBancaria  {
 	}
 	
 	@Override
-	public void realizarAcciones(String[] opciones, String [] opcionesMovimiento, Banco banco) {
+	public void realizarAcciones(String[] opciones, String [] opcionesMovimiento, String [] movimientosCategoria ,Banco banco) {
 		int opcion;
 		
 		do {
@@ -44,6 +44,26 @@ public class CuentaCliente extends CuentaBancaria  {
 					break;
 				case 3:
 					JOptionPane.showMessageDialog(null, verMovimientosMenorMonto());
+					break;
+				case 4:
+					opcion = JOptionPane.showOptionDialog(null, "Movimientos", "", 0, 0, null, movimientosCategoria, movimientosCategoria[0]);
+					Tipo_Movimiento tipo_Movimiento = null;
+					if (opcion == 0) {
+						tipo_Movimiento = Tipo_Movimiento.DEPOSITO;
+					}
+					else if (opcion == 1) {
+						tipo_Movimiento = Tipo_Movimiento.RETIRO;
+					}
+					else if (opcion == 2) {
+						tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA;
+					}
+					else if (opcion == 3) {
+						tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA_RECIBIDA;
+					}
+					else {
+						break;
+					}
+					verMovimientosPorCategoria(tipo_Movimiento);
 					break;
 				default:
 					

@@ -16,7 +16,8 @@ public class Main {
 		String [] opciones = {"Crear Cuenta Bancaria", "Iniciar Sesion", "Salir"};
 		String [] opcionesCliente = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Salir"}; 
 		String [] opcionesAdministrador = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Administrar Cuentas" ,"Salir"};
-		String [] opcionesMovimiento = {"Ver general", "Mas Recientes", "Por mayor monto", "Por menor monto", "Salir"};
+		String [] opcionesMovimiento = {"Ver general", "Mas Recientes", "Por mayor monto", "Por menor monto", "Por Categoria","Salir"};
+		String [] movimientosCategoria = {"Depositos", "Retiros", "Transferencias", "Transferencias Recibidas" ,"Salir"};
 		
 		Banco banco = new Banco("Galicia");
 		
@@ -38,10 +39,10 @@ public class Main {
 				if (cuentaBancaria != null) {
 					JOptionPane.showMessageDialog(null, "Sesion iniciada con exito");
 					if (cuentaBancaria.getRol().equals(Rol.CLIENTE)) {
-						cuentaBancaria.realizarAcciones(opcionesCliente, opcionesMovimiento, banco);
+						cuentaBancaria.realizarAcciones(opcionesCliente, opcionesMovimiento, movimientosCategoria, banco);
 					}
 					else {
-						cuentaBancaria.realizarAcciones(opcionesAdministrador, opcionesMovimiento, banco);
+						cuentaBancaria.realizarAcciones(opcionesAdministrador, opcionesMovimiento, movimientosCategoria , banco);
 					}
 				}
 				else {
