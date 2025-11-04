@@ -3,78 +3,77 @@ package CapaLogica;
 import javax.swing.JOptionPane;
 
 public class CuentaCliente extends CuentaBancaria  {
-
+	private String [] permisos = {"Ver perfil", "Cambiar email", "Cambiar contrasenia", "Salir"};
+	
 	public CuentaCliente(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
 		setRol(Rol.CLIENTE);
 	}
 	
 	@Override
-	public void realizarAcciones(String[] opciones, String [] opcionesMovimiento, String [] movimientosCategoria ,Banco banco) {
-		int opcion;
+	public void realizarOpcionesCuenta(Banco banco) {
+		int opcion = JOptionPane.showOptionDialog(null, "Opciones de cuenta", "", 0, 0, null, permisos, permisos[0]);
+		String email = "";
+		boolean emailVacio;
+		boolean existeEmail = false;
+		boolean esVacio;
+		String contrasenia = "";
+		String contraseniaConfirmada = "";
 		
-		do {
-			opcion = JOptionPane.showOptionDialog(null, toString(), "", 0, 0, null, opciones, opciones[0]);
-			
-			switch (opcion) {
-			case 0:
-				getMovimientos().add(depositarDinero());
-				break;	
-			case 1:
-				retirarDinero();
-				break;
-			case 2:
-				transferirDinero(banco);
-				break;
-			case 3:
-				if (getMovimientos().size() == 0) {
-					JOptionPane.showMessageDialog(null, "No hay movimientos cargados");
-					break;
+		if (opcion == 0) {
+			JOptionPane.showMessageDialog(null, toString());
+		}
+		else if (opcion == 1) {
+			do {
+				email = JOptionPane.showInputDialog("Ingrese su email");
+				emailVacio = validarCamposVacios(email, "email");
+				if (emailVacio == true) {
+					continue;
 				}
-				opcion = JOptionPane.showOptionDialog(null, "Que movimiento quiere ver?", "", 0, 0, null, opcionesMovimiento, opcionesMovimiento[0]);
-				switch (opcion) {
-				case 0:
-					JOptionPane.showMessageDialog(null, verMovimentos());
-					break;
-				case 1:
-					JOptionPane.showMessageDialog(null, verMovimientosRecientes());
-					break;
-				case 2:
-					JOptionPane.showMessageDialog(null, verMovimientosMayorMonto());
-					break;
-				case 3:
-					JOptionPane.showMessageDialog(null, verMovimientosMenorMonto());
-					break;
-				case 4:
-					opcion = JOptionPane.showOptionDialog(null, "Movimientos", "", 0, 0, null, movimientosCategoria, movimientosCategoria[0]);
-					Tipo_Movimiento tipo_Movimiento = null;
-					if (opcion == 0) {
-						tipo_Movimiento = Tipo_Movimiento.DEPOSITO;
-					}
-					else if (opcion == 1) {
-						tipo_Movimiento = Tipo_Movimiento.RETIRO;
-					}
-					else if (opcion == 2) {
-						tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA;
-					}
-					else if (opcion == 3) {
-						tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA_RECIBIDA;
-					}
-					else {
+				if (!email.contains("@")) {
+					JOptionPane.showMessageDialog(null, "El email no contiene @, por favor vuelva ingresar");
+				}
+				for (CuentaBancaria cuentaBancaria : banco.getCuentasBancarias()) {
+					String emailCoincidente = cuentaBancaria.getEmail();
+					if (email.equals(emailCoincidente)) {
+						JOptionPane.showMessageDialog(null, "El email ingresado ya existe por favor ingrese otro");
+						existeEmail = true;
 						break;
 					}
-					verMovimientosPorCategoria(tipo_Movimiento);
-					break;
-				default:
-					
-					break;
+					else {
+						existeEmail = false;
+					}
 				}
-				break;
-			default:
-				JOptionPane.showMessageDialog(null, "Has cerrado sesion");
-				break;
-				}	
-		} while (opcion !=  opciones.length - 1);
+			} while (emailVacio == true || !email.contains("@") || existeEmail == true);
+			
+			setEmail(email);
+		}
+		else if (opcion == 2) {
+			do {
+				contrasenia = JOptionPane.showInputDialog("Ingrese su contrasenia actual");
+				if (!contrasenia.equals(this.contrasenia)) {
+					JOptionPane.showMessageDialog(null, "La contrasenia ingresada no coincide con la actual");
+					continue;
+				}
+				
+				contrasenia = JOptionPane.showInputDialog("Ingrese una nueva contrasenia");
+				esVacio = validarCamposVacios(contrasenia, "contrasenia");
+				
+				if (esVacio == true) {
+					continue;
+				}
+				
+				contraseniaConfirmada = JOptionPane.showInputDialog("Ingrese nuevamente la contrasenia");
+				if (!contraseniaConfirmada.equals(contrasenia)) {					
+					JOptionPane.showMessageDialog(null, "Las contrasenias no coinciden por favor vuelva ingresar");
+				}
+			} while (contrasenia.isEmpty() || !contraseniaConfirmada.equals(contrasenia));
+			
+			setContrasenia(contrasenia);
+		}
+		else {
+			return;
+		}
 	}
 	
 	@Override

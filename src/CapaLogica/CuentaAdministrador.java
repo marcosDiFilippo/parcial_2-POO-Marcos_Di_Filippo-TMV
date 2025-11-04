@@ -1,11 +1,12 @@
 package CapaLogica;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
 public class CuentaAdministrador extends CuentaBancaria {
-	String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Salir"};
+	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Salir"};
 
 	public CuentaAdministrador(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
@@ -13,80 +14,17 @@ public class CuentaAdministrador extends CuentaBancaria {
 	}
 	
 	@Override
-	public void realizarAcciones(String[] opciones, String [] opcionesMovimiento, String [] movimientosCategoria, Banco banco) {
+	public void realizarOpcionesCuenta(Banco banco) {
 		int opcion;
 		
-		do {
-			opcion = JOptionPane.showOptionDialog(null, toString(), "", 0, 0, null, opciones, opciones[0]);
-			
-			switch (opcion) {
-				case 0:
-					getMovimientos().add(depositarDinero());
-					break;	
-				case 1:
-					retirarDinero();
-					break;
-				case 2:
-					transferirDinero(banco);
-					break;
-				case 3:
-					if (getMovimientos().size() == 0) {
-						JOptionPane.showMessageDialog(null, "No hay movimientos cargados");
-						break;
-					}
-					opcion = JOptionPane.showOptionDialog(null, "Que movimiento quiere ver?", "", 0, 0, null, opcionesMovimiento, opcionesMovimiento[0]);
-					switch (opcion) {
-						case 0:
-							JOptionPane.showMessageDialog(null, verMovimentos());
-							break;
-						case 1:
-							JOptionPane.showMessageDialog(null, verMovimientosRecientes());
-							break;
-						case 2:
-							JOptionPane.showMessageDialog(null, verMovimientosMayorMonto());
-							break;
-						case 3:
-							JOptionPane.showMessageDialog(null, verMovimientosMenorMonto());
-							break;
-						case 4:
-							opcion = JOptionPane.showOptionDialog(null, "Movimientos", "", 0, 0, null, movimientosCategoria, movimientosCategoria[0]);
-							Tipo_Movimiento tipo_Movimiento;
-							if (opcion == 0) {
-								tipo_Movimiento = Tipo_Movimiento.DEPOSITO;
-							}
-							else if (opcion == 1) {
-								tipo_Movimiento = Tipo_Movimiento.RETIRO;
-							}
-							else if (opcion == 2) {
-								tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA;
-							}
-							else if (opcion == 3) {
-								tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA_RECIBIDA;
-							}
-							else {
-								break;
-							}
-							verMovimientosPorCategoria(tipo_Movimiento);
-							break;
-						default:
-							
-							break;
-					}
-					break;
-				case 4:
-					opcion = JOptionPane.showOptionDialog(null, "Opciones cuentas", "", 0, 0, null, permisos, permisos[0]);
-					if (opcion == 0) {
-						eliminarUsuarios(banco);
-					}
-					else if (opcion == 1) {
-						cambiarRoles(banco);
-					}
-					break;
-				default:
-					JOptionPane.showMessageDialog(null, "Has cerrado sesion");
-					break;
-			}	
-		} while (opcion != opciones.length - 1);
+		opcion = JOptionPane.showOptionDialog(null, "Elija la accion a realizar", "", 0, 0, null, permisos, permisos[0]);
+	
+		if (opcion == 0) {
+			eliminarUsuarios(banco);
+		}
+		else if (opcion == 1) {
+			cambiarRoles(banco);
+		}
 	}
 	
 	public void eliminarUsuarios(Banco banco) {
@@ -125,17 +63,21 @@ public class CuentaAdministrador extends CuentaBancaria {
 		
 		List <CuentaBancaria> cuentasBancarias = banco.filtrarCuentas(this.getAlias());
 
-		String [] usuarios = new String[cuentasBancarias.size()];
+		List <CuentaBancaria> cuentasFiltradas = cuentasBancarias.stream()
+				.filter(cuenta -> !cuenta.getRol().equals(Rol.ADMINISTRADOR))
+				.collect(Collectors.toList());
+		
+		String [] usuarios = new String[cuentasFiltradas.size()];
 		
 		for (int i = 0; i < usuarios.length; i++) {
-			usuarios[i] = cuentasBancarias.get(i).getEmail();
+			usuarios[i] = cuentasFiltradas.get(i).getEmail();
 		}
 		
 		String email = (String) JOptionPane.showInputDialog(null, "A que usuario desea modificar los roles?", "", 0, null, usuarios, usuarios[0]);
 		
 		int index = 0;
 		
-		for (CuentaBancaria cuenta : cuentasBancarias) {
+		for (CuentaBancaria cuenta : cuentasFiltradas) {
 			index++;
 			if (cuenta.getEmail().equals(email)) {
 				Rol rol;

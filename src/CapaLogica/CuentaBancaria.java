@@ -43,8 +43,8 @@ public abstract class CuentaBancaria {
 		this.alias = cuentaBancaria.getAlias();
 		this.rol = cuentaBancaria.getRol();
 	}
-
-	public abstract void realizarAcciones(String [] opciones, String [] opcionesMovimiento, String [] movimientosCategoria ,Banco banco);
+	
+	public abstract void realizarOpcionesCuenta(Banco banco);
 	
 	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
 		String email;
@@ -428,7 +428,26 @@ public abstract class CuentaBancaria {
 		return string;
 	}
 	
-	public void verMovimientosPorCategoria(Tipo_Movimiento tipo_Movimiento) {
+	public void verMovimientosPorCategoria(String [] movimientosCategoria) {
+		int opcionElegida = JOptionPane.showOptionDialog(null, "Movimientos", "", 0, 0, null, movimientosCategoria, movimientosCategoria[0]);
+		
+		Tipo_Movimiento tipo_Movimiento;
+		if (opcionElegida == 0) {
+			tipo_Movimiento = Tipo_Movimiento.DEPOSITO;
+		}
+		else if (opcionElegida == 1) {
+			tipo_Movimiento = Tipo_Movimiento.RETIRO;
+		}
+		else if (opcionElegida == 2) {
+			tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA;
+		}
+		else if (opcionElegida == 3) {
+			tipo_Movimiento = Tipo_Movimiento.TRANSFERENCIA_RECIBIDA;
+		}
+		else {
+			return;
+		}
+		
 		String mensaje = "";
 		
 		List <Movimiento> movimientosFiltrados = this.movimientos.stream()
