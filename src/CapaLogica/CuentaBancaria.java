@@ -46,13 +46,13 @@ public abstract class CuentaBancaria {
 	
 	public abstract void realizarOpcionesCuenta(Banco banco);
 	
-	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
+	public static String ingresarEmail(Banco banco) {
 		String email;
 		boolean emailVacio;
 		boolean existeEmail = false;
 		
 		do {
-			email = JOptionPane.showInputDialog("Ingrese su email");
+			email = JOptionPane.showInputDialog("Ingrese el email");
 			emailVacio = validarCamposVacios(email, "email");
 			if (emailVacio == true) {
 				continue;
@@ -73,12 +73,16 @@ public abstract class CuentaBancaria {
 			}
 		} while (emailVacio == true || !email.contains("@") || existeEmail == true);
 		
+		return email;
+	}
+	
+	public static String ingresarContrasenia() {
 		String contrasenia;
 		String contraseniaConfirmada = null;
 		boolean esVacio;
 		
 		do {
-			contrasenia = JOptionPane.showInputDialog("Ingrese una contrasenia");
+			contrasenia = JOptionPane.showInputDialog("Ingrese la contrasenia");
 			esVacio = validarCamposVacios(contrasenia, "contrasenia");
 			
 			if (esVacio == true) {
@@ -90,6 +94,34 @@ public abstract class CuentaBancaria {
 				JOptionPane.showMessageDialog(null, "Las contrasenias no coinciden por favor vuelva ingresar");
 			}
 		} while (contrasenia.isEmpty() || !contraseniaConfirmada.equals(contrasenia));
+		
+		return contrasenia;
+	}
+	
+	public boolean validarEmailActual() {
+		String email = JOptionPane.showInputDialog("Ingrese su email para poder cambiarla");
+		if (email.equals(this.email)) {
+			JOptionPane.showMessageDialog(null, "El email ingresado es correcto");
+			return true;
+		}
+		JOptionPane.showMessageDialog(null, "El email ingresado es incorrecto");
+		return false;
+	}
+	
+	public boolean validarContraseniaActual() {
+		String contrasenia = JOptionPane.showInputDialog("Ingrese su contrasenia para poder cambiarla");
+		if (contrasenia.equals(this.contrasenia)) {
+			JOptionPane.showMessageDialog(null, "La contrasenia ingresada es correcto");
+			return true;
+		}
+		JOptionPane.showMessageDialog(null, "La contrasenia ingresada es incorrecto");
+		return false;
+	}
+	
+	public static CuentaBancaria crearCuentaBancaria(Usuario usuario, Banco banco) {
+		String email = ingresarEmail(banco);
+		
+		String contrasenia = ingresarContrasenia();
 		
 		return new CuentaCliente(usuario, email, contrasenia);
 	}
@@ -521,6 +553,10 @@ public abstract class CuentaBancaria {
 			return true;
 		}
 		return false;
+	}
+	
+	public void cambiarEmail() {
+		
 	}
 	
 	@Override

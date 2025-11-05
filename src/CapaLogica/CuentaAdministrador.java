@@ -123,9 +123,4 @@ public class CuentaAdministrador extends CuentaBancaria {
 		
 		return new CuentaAdministrador(cuentaBancaria);
 	}
-	
-	@Override
-	public void transferirDinero(Banco banco) {
-		super.transferirDinero(banco);
-	}
 }

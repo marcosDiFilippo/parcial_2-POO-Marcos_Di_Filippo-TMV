@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class Movimiento {
 	
-	public static int numMov = 0;
+	private static int numMov = 0;
 	private Tipo_Movimiento tipo_Movimiento;
 	private LocalDate fecha;
 	private LocalDateTime hora;
@@ -98,5 +98,13 @@ public class Movimiento {
 	
 	public void setMedioOperacion(MedioOperacion medioOperacion) {
 		this.medioOperacion = medioOperacion;
+	}
+	
+	public static int getNumMov() {
+		return numMov;
+	}
+	
+	public void setNumeroMovimiento(int numeroMovimiento) {
+		this.numeroMovimiento = numeroMovimiento;
 	}
 }

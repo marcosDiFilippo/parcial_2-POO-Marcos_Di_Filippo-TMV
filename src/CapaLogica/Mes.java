@@ -1,4 +1,4 @@
-package CapaLogica;
+	package CapaLogica;
 
 public enum Mes {
 	ENERO(1, 31)

@@ -9,10 +9,6 @@ public class MedioOperacion {
 		this.comision = comision;
 	}
 	
-	public void crearMedioOperacion() {
-		
-	}
-
 	public NombreMedio getNombreMedio() {
 		return nombreMedio;
 	}
