@@ -9,6 +9,10 @@ public class MedioOperacion {
 		this.comision = comision;
 	}
 	
+	public MedioOperacion(NombreMedio nombreMedio) {
+		this.nombreMedio = nombreMedio;
+	}
+	
 	public NombreMedio getNombreMedio() {
 		return nombreMedio;
 	}

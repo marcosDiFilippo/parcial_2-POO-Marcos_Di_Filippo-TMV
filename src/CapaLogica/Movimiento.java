@@ -12,7 +12,6 @@ public class Movimiento {
 	private String detalles;
 	private double monto;
 	private int numeroMovimiento;
-	private MedioOperacion medioOperacion;
 	
 	public Movimiento(String detalles, double monto, Tipo_Movimiento tipo_Movimiento) {
 		this.fecha = LocalDate.now();
@@ -24,17 +23,6 @@ public class Movimiento {
 		this.numeroMovimiento = numMov;
 	}
 	
-	public Movimiento(String detalles, double monto, Tipo_Movimiento tipo_Movimiento, MedioOperacion medioOperacion) {
-		this.fecha = LocalDate.now();
-		this.hora = LocalDateTime.now();
-		this.detalles = detalles;
-		this.monto = monto;
-		this.tipo_Movimiento = tipo_Movimiento;
-		numMov++;
-		this.numeroMovimiento = numMov;
-		this.medioOperacion = medioOperacion;
-	}
-	
 	@Override
 	public String toString() {
 		return "------------------------------------------------\nMovimiento: " + tipo_Movimiento 
@@ -43,12 +31,7 @@ public class Movimiento {
 				+ "\nDetalles: " + detalles 
 				+ "\nMonto: " + monto 
 				+ "\nNumero movimiento: " + numeroMovimiento
-				+ (medioOperacion != null ? 
-						"\n"
-						+"\nMedio: " + medioOperacion.getNombreMedio()
-						+ "\nComision: " + medioOperacion.getComision()
-						+ "\nTotal: " + (monto - medioOperacion.getComision()) : "")
-				+ "\n------------------------------------------------";
+				+ (this.tipo_Movimiento == Tipo_Movimiento.DEPOSITO ? "" : "\n------------------------------------------------");
 	}
 
 	public LocalDate getFecha() {
@@ -90,14 +73,6 @@ public class Movimiento {
 	
 	public void setNumMov(int numeroMovimiento) {
 		this.numeroMovimiento = numeroMovimiento;
-	}
-	
-	public MedioOperacion getMedioOperacion() {
-		return medioOperacion;
-	}
-	
-	public void setMedioOperacion(MedioOperacion medioOperacion) {
-		this.medioOperacion = medioOperacion;
 	}
 	
 	public static int getNumMov() {

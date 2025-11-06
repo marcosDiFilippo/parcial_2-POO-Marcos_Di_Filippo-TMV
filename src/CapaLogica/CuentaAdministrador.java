@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 public class CuentaAdministrador extends CuentaBancaria {
-	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Salir"};
+	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver Cajeros Disponibles" ,"Salir"};
 
 	public CuentaAdministrador(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
@@ -24,6 +24,27 @@ public class CuentaAdministrador extends CuentaBancaria {
 		}
 		else if (opcion == 1) {
 			cambiarRoles(banco);
+		}
+		else if (opcion == 2) {
+			String ubicacion;
+			do {
+				ubicacion = JOptionPane.showInputDialog("Ingrese la ubicacion del cajero");
+				if (ubicacion.isEmpty()) {
+					JOptionPane.showMessageDialog(null, "La ubicacion es obligatoria, por favor vuelva ingresar");
+				}
+			} while (ubicacion.isEmpty());
+			
+			NombreMedio nombreMedio = (NombreMedio) JOptionPane.showInputDialog(null, "Ingrese el medio de operacion en el cual se encuentra el cajero", "", 0, null, NombreMedio.values(), NombreMedio.values()[0]);
+			
+			Cajero.agregarCajero(new Cajero(ubicacion, new MedioOperacion(nombreMedio)));
+		}
+		else if (opcion == 3) {
+			String mensaje = "";
+			
+			for (Cajero cajero : Cajero.getCajeros()) {
+				mensaje += cajero;
+			}
+			JOptionPane.showMessageDialog(null, mensaje.isEmpty() ? "No hay cajeros cargados" : mensaje);
 		}
 	}
 	

@@ -53,7 +53,7 @@ public abstract class CuentaBancaria {
 		
 		do {
 			email = JOptionPane.showInputDialog("Ingrese el email");
-			emailVacio = validarCamposVacios(email, "email");
+			emailVacio = Validacion.validarCampoVacio(email, "email");
 			if (emailVacio == true) {
 				continue;
 			}
@@ -83,7 +83,7 @@ public abstract class CuentaBancaria {
 		
 		do {
 			contrasenia = JOptionPane.showInputDialog("Ingrese la contrasenia");
-			esVacio = validarCamposVacios(contrasenia, "contrasenia");
+			esVacio = Validacion.validarCampoVacio(contrasenia, "contrasenia");
 			
 			if (esVacio == true) {
 				continue;
@@ -126,25 +126,38 @@ public abstract class CuentaBancaria {
 		return new CuentaCliente(usuario, email, contrasenia);
 	}
 	
-	public Movimiento depositarDinero() {
+	public MovimientoPorCajero depositarDinero() {
+		if (Cajero.getCajeros().size() == 0) {
+			JOptionPane.showMessageDialog(null, "Lo sentimos no hay cajeros disponibles, vuelva a intentar mas tarde");
+			return null;
+		}
+		
 		String monto;
 		boolean esVacio;
 		boolean esNegativo = false;
 		boolean tieneLetras = false;
 		boolean mayorAlLimite = false;
+		String ubicacionCajero = (String) JOptionPane.showInputDialog(null, "Ingrese el cajero en el cual se realizara el deposito", "", 0, null, Cajero.incluirCajeros(), Cajero.incluirCajeros()[0]);
 		
-		NombreMedio nombreMedio = (NombreMedio) JOptionPane.showInputDialog(null, "Elija el medio para realizar el deposito", "", 0, null, NombreMedio.values(), NombreMedio.values()[0]);
-
+		Cajero cajeroSeleccionado = null;
+		
+		for (Cajero cajero : Cajero.getCajeros()) {
+			if (cajero.getUbicacion().equals(ubicacionCajero)) {
+				cajeroSeleccionado = cajero;
+				break;
+			}
+		}
+		
 		do {
 			monto = JOptionPane.showInputDialog("Ingrese el monto "
 					+ "de deposito (solo numeros)");
 			
-			esVacio = validarCampoVacio(monto, "monto");
+			esVacio = Validacion.validarCampoVacio(monto, "monto");
 			if (esVacio == true) {
 				continue;
 			}
 			
-			tieneLetras = verificarLetrasMonto(monto);
+			tieneLetras = Validacion.validarLetrasCampo(monto, "monto");
 			if (tieneLetras == true) {
 				continue;
 			}
@@ -166,7 +179,7 @@ public abstract class CuentaBancaria {
 		double total = 0;
 		
 		if (Double.parseDouble(monto) > 100000) {
-			comision = calcularComision(nombreMedio, Double.parseDouble(monto));
+			comision = calcularComision(cajeroSeleccionado.getMedioOperacion().getNombreMedio(), Double.parseDouble(monto));
 			total = Double.parseDouble(monto) - comision;
 			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + total);
 		}
@@ -174,9 +187,11 @@ public abstract class CuentaBancaria {
 			total = Double.parseDouble(monto);
 		}
 		
+		cajeroSeleccionado.sumarSaldo(Double.parseDouble(monto) + comision);
+		
 		actualizarSaldo(total);
 		
-		return new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, new MedioOperacion(nombreMedio, comision));
+		return new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, cajeroSeleccionado);
 	}
 	
 	public boolean validarDeposito(String campo) {
@@ -188,36 +203,51 @@ public abstract class CuentaBancaria {
 	}
 	
 	public void retirarDinero() {
+		if (Cajero.getCajeros().size() == 0) {
+			JOptionPane.showMessageDialog(null, "Lo sentimos no hay cajeros disponibles, vuelva a intentar mas tarde");
+			return;
+		}
+		
+		String ubicacionCajero = (String) JOptionPane.showInputDialog(null, "", "", 0, null, Cajero.incluirCajeros(), Cajero.incluirCajeros()[0]);
+		
+		Cajero cajeroSeleccionado = null;
+		
+		for (Cajero cajero : Cajero.getCajeros()) {
+			if (cajero.getUbicacion().equals(ubicacionCajero)) {
+				cajeroSeleccionado = cajero;
+				break;
+			}
+		}
+		
 		String monto = "";
 		String detalles = "";
 		
 		boolean esVacio = false;
 		boolean esNegativo = false;
 		boolean tieneLetras = false;
-		boolean montoMayorAlSaldo = false;
+		boolean esMayorAlSaldo = false;
+		boolean esTotalMayorAlSaldo = false;
 		
 		boolean saldoNulo = verificarSaldo();
-				
+
+		double comision = 0;
+		
+		double total = 0;
+		
 		if (saldoNulo == true) {
 			return;
 		}
 		
-		NombreMedio nombreMedio = (NombreMedio) JOptionPane.showInputDialog(null, "Elija el medio por donde va realizar el deposito", "", 0, null, NombreMedio.values(), NombreMedio.values()[0]);
-		
 		do {
 			monto = JOptionPane.showInputDialog("Ingrese el monto a retirar de la cuenta");
 			
-			esVacio = validarCampoVacio(monto, "monto");
+			esVacio = Validacion.validarCampoVacio(monto, "monto");
 			if (esVacio == true) {
 				continue;
 			}
-			tieneLetras = verificarLetrasMonto(monto);
+			
+			tieneLetras = Validacion.validarLetrasCampo(monto, "monto");
 			if (tieneLetras == true) {
-				continue;
-			}
-			montoMayorAlSaldo = validarMontoMayorSaldo(Double.parseDouble(monto));
-			if (montoMayorAlSaldo == true) {
-				JOptionPane.showMessageDialog(null, "El monto ingresado es mayor al saldo, por favor vuelva ingresar");
 				continue;
 			}
 			else {
@@ -227,20 +257,35 @@ public abstract class CuentaBancaria {
 				}
 			}
 			
-		} while (esNegativo == true || esVacio == true || tieneLetras == true || montoMayorAlSaldo == true);
+			esMayorAlSaldo = cajeroSeleccionado.validarMontoMayorSaldo(Double.parseDouble(monto));
+			if (esMayorAlSaldo == true) {
+				continue;
+			}
+			
+			if (esNegativo == false || esVacio == false || tieneLetras == false || esMayorAlSaldo == false) {				
+				if (Double.parseDouble(monto) > 100000) {			
+					comision = calcularComision(cajeroSeleccionado.getMedioOperacion().getNombreMedio(), Double.parseDouble(monto));
+				}
+			}
+			
+			esTotalMayorAlSaldo = cajeroSeleccionado.validarTotalMayorSaldo(Double.parseDouble(monto), comision);
+			if (esTotalMayorAlSaldo == true) {
+				continue;
+			}
+			
+			total = Double.parseDouble(monto) - comision;
+		} while (esNegativo == true || esVacio == true || tieneLetras == true || esMayorAlSaldo == true || esTotalMayorAlSaldo == true || total > this.saldo);
+		
+		//corregir las sumas del monto
+		JOptionPane.showMessageDialog(null, "El monto retirado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
 		
 		detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
 		
 		saldo = saldo - Double.parseDouble(monto);
 		
-		double comision = 0;
+		cajeroSeleccionado.restarSaldo(Double.parseDouble(monto) + comision);
 		
-		if (Double.parseDouble(monto) > 100000) {			
-			comision = calcularComision(nombreMedio, Double.parseDouble(monto));
-			JOptionPane.showMessageDialog(null, "El monto retirado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
-		}
-		
-		this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, new MedioOperacion(nombreMedio, comision)));
+		this.movimientos.add(new MovimientoPorCajero(detalles, Double.parseDouble(monto), Tipo_Movimiento.RETIRO, cajeroSeleccionado));
 	}
 	
 	public String[] incluirContactos() {
@@ -294,7 +339,7 @@ public abstract class CuentaBancaria {
 					do {
 						monto = JOptionPane.showInputDialog("Ingrese el monto (solo numeros) para la transferencia hacia " + cuentaTransferida.getUsuario().getNombre() + " " + cuentaTransferida.getUsuario().getApellido() + "\nAlias: " + cuentaTransferida.getAlias());
 						
-						esVacio = validarCampoVacio(monto, "monto");
+						esVacio = Validacion.validarCampoVacio(monto, "monto");
 						if (esVacio == true) {
 							continue;
 						}
@@ -316,8 +361,7 @@ public abstract class CuentaBancaria {
 					detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre la transferencia (opcional)");
 					
 					this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA));
-					cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento
-							.TRANSFERENCIA_RECIBIDA));
+					cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA_RECIBIDA));
 					
 					break;
 				}
@@ -349,17 +393,17 @@ public abstract class CuentaBancaria {
 			do {
 				monto = JOptionPane.showInputDialog("Ingrese el monto (solo numeros) para la transferencia hacia " + cuentaTransferida.getUsuario().getNombre() + " " + cuentaTransferida.getUsuario().getApellido() + "\nAlias: " + cuentaTransferida.getAlias());
 				
-				esVacio = validarCampoVacio(monto, "monto");
+				esVacio = Validacion.validarCampoVacio(monto, "monto");
 				if (esVacio == true) {
 					continue;
 				}
 
-				tieneLetras = verificarLetrasMonto(monto);
+				tieneLetras = Validacion.validarLetrasCampo(monto, "monto");
 				if (tieneLetras == true) {
 					continue;
 				}
 				
-				esMenorACero = verificarMontoNegativo(Double.parseDouble(monto));
+				esMenorACero = Validacion.verificarNumeroNegativo(Double.parseDouble(monto), "monto");
 				if (esMenorACero == true) {
 					continue;
 				}
@@ -502,19 +546,6 @@ public abstract class CuentaBancaria {
 		return string.isEmpty() ? "Ninguno" : string;
 	}
 	
-	public boolean verificarLetrasMonto(String monto) {
-		for (int i = 0; i < monto.length(); i++) {
-			if (!Character.isDigit(monto.charAt(i))) {
-				if (monto.charAt(i) == '.') {
-					continue;
-				}
-				JOptionPane.showMessageDialog(null, "El monto no puede contener letras, por favor vuelva ingresar");
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public boolean verificarMontoNegativo(double monto) {
 		if (monto < 0) {
 			JOptionPane.showMessageDialog(null, "El monto no puede ser menor a 0, por favor vuelva ingresar");
@@ -526,22 +557,6 @@ public abstract class CuentaBancaria {
 	public boolean validarMontoMayorSaldo(double monto) {
 		if (monto > saldo) {
 			JOptionPane.showMessageDialog(null, "El monto ingresado: " + monto + " es mayor al saldo actual -" + saldo + "-");
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean validarCampoVacio(String campo, String nombreCampo) {
-		if (campo.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " es obligatorio, por favor vuelva ingresar");
-			return true;
-		}
-		return false;
-	}
-	
-	public static boolean validarCamposVacios(String campo, String nombreCampo) {
-		if (campo.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " es obligatorio, por favor vuelva ingresar");
 			return true;
 		}
 		return false;

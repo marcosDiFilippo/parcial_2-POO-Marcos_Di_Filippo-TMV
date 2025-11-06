@@ -9,7 +9,6 @@ import CapaLogica.CuentaAdministrador;
 import CapaLogica.CuentaBancaria;
 import CapaLogica.CuentaCliente;
 import CapaLogica.Movimiento;
-import CapaLogica.Tipo_Movimiento;
 import CapaLogica.Usuario;
 
 public class Main {
@@ -46,10 +45,12 @@ public class Main {
 						switch (opcionElegida) {
 						case 0:
 							Movimiento deposito = cuentaBancaria.depositarDinero();
-							cuentaBancaria.getMovimientos().add(deposito);
+							if (deposito != null) {								
+								cuentaBancaria.getMovimientos().add(deposito);
+							}
 							break;	
 						case 1:
-							cuentaBancaria.retirarDinero();
+							cuentaBancaria.retirarDinero(); 
 							break;
 						case 2:
 							cuentaBancaria.transferirDinero(banco);
