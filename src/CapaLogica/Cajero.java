@@ -34,7 +34,7 @@ public class Cajero {
 	
 	public boolean validarMontoMayorSaldo(double monto) {
 		if (monto > this.saldo) {
-			JOptionPane.showMessageDialog(null, "El monto " + monto + " es mayor al saldo " + this.saldo);
+			JOptionPane.showMessageDialog(null, "No hay fondos suficientes en el cajero, por favor ingrese un monto menor");
 			return true;
 		}
 		return false;

@@ -180,12 +180,9 @@ public abstract class CuentaBancaria {
 		
 		if (Double.parseDouble(monto) > 100000) {
 			comision = calcularComision(cajeroSeleccionado.getMedioOperacion().getNombreMedio(), Double.parseDouble(monto));
-			total = Double.parseDouble(monto) - comision;
 			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + total);
 		}
-		else {
-			total = Double.parseDouble(monto);
-		}
+		total = Double.parseDouble(monto) - comision;
 		
 		cajeroSeleccionado.sumarSaldo(Double.parseDouble(monto) + comision);
 		
@@ -208,7 +205,7 @@ public abstract class CuentaBancaria {
 			return;
 		}
 		
-		String ubicacionCajero = (String) JOptionPane.showInputDialog(null, "", "", 0, null, Cajero.incluirCajeros(), Cajero.incluirCajeros()[0]);
+		String ubicacionCajero = (String) JOptionPane.showInputDialog(null, "Ingrese el cajero en el cual se realizara el retiro", "", 0, null, Cajero.incluirCajeros(), Cajero.incluirCajeros()[0]);
 		
 		Cajero cajeroSeleccionado = null;
 		
@@ -239,7 +236,9 @@ public abstract class CuentaBancaria {
 		}
 		
 		do {
-			monto = JOptionPane.showInputDialog("Ingrese el monto a retirar de la cuenta");
+			monto = JOptionPane.showInputDialog("Ingrese el monto a retirar de la cuenta"
+					+ "\nTenga en cuenta que el monto ingresado se le va sumar una comision"
+					+ "\nEl total de la suma de ambos es lo que se resta de su cuenta");
 			
 			esVacio = Validacion.validarCampoVacio(monto, "monto");
 			if (esVacio == true) {
@@ -268,24 +267,37 @@ public abstract class CuentaBancaria {
 				}
 			}
 			
-			esTotalMayorAlSaldo = cajeroSeleccionado.validarTotalMayorSaldo(Double.parseDouble(monto), comision);
+			esTotalMayorAlSaldo = validarTotalMayorSaldo(Double.parseDouble(monto), comision);
 			if (esTotalMayorAlSaldo == true) {
 				continue;
 			}
 			
-			total = Double.parseDouble(monto) - comision;
 		} while (esNegativo == true || esVacio == true || tieneLetras == true || esMayorAlSaldo == true || esTotalMayorAlSaldo == true || total > this.saldo);
+		total = Double.parseDouble(monto) + comision;
 		
-		//corregir las sumas del monto
-		JOptionPane.showMessageDialog(null, "El monto retirado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
+		if (Double.parseDouble(monto) > 100000) {			
+			JOptionPane.showMessageDialog(null, "El monto retirado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
+		}
 		
 		detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
 		
-		saldo = saldo - Double.parseDouble(monto);
+		restarSaldo(total);
 		
-		cajeroSeleccionado.restarSaldo(Double.parseDouble(monto) + comision);
+		cajeroSeleccionado.restarSaldo(Double.parseDouble(monto) - comision);
 		
-		this.movimientos.add(new MovimientoPorCajero(detalles, Double.parseDouble(monto), Tipo_Movimiento.RETIRO, cajeroSeleccionado));
+		this.movimientos.add(new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, cajeroSeleccionado));
+	}
+	
+	public boolean validarTotalMayorSaldo(double monto, double comision) {
+		double total = monto + comision;
+		if (total > saldo) {
+			JOptionPane.showMessageDialog(null, "No se ha podido realizar el retiro"
+					+ "\nEl saldo de la cuenta es de: " + saldo
+					+ "\nEl monto ingresado " + monto + " junto con la comision " + comision
+					+ " da un total de: " + total );
+			return true;
+		}
+		return false;
 	}
 	
 	public String[] incluirContactos() {
@@ -594,6 +606,10 @@ public abstract class CuentaBancaria {
 	
 	public void actualizarSaldo(double monto) {
 		this.saldo += monto;
+	}
+	
+	public void restarSaldo(double monto) {
+		this.saldo -= monto;
 	}
 
 	public Usuario getUsuario() {
