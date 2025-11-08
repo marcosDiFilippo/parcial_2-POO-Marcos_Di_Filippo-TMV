@@ -22,6 +22,10 @@ public class Cajero {
 		cajeros.add(cajero);
 	}
 	
+	public void agregarMovimientos(Movimiento movimiento) {
+		this.movimientosCajero.add(movimiento);
+	}
+	
 	public static String[] incluirCajeros() {
 		String [] cajeros = new String[getCajeros().size()];
 		

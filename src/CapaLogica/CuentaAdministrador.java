@@ -1,12 +1,13 @@
 package CapaLogica;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
 public class CuentaAdministrador extends CuentaBancaria {
-	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver Cajeros Disponibles" ,"Salir"};
+	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver Cajeros Disponibles", "Dar de baja cajero" ,"Salir"};
 
 	public CuentaAdministrador(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
@@ -45,6 +46,9 @@ public class CuentaAdministrador extends CuentaBancaria {
 				mensaje += cajero;
 			}
 			JOptionPane.showMessageDialog(null, mensaje.isEmpty() ? "No hay cajeros cargados" : mensaje);
+		}
+		else if (opcion == 4) {
+			darBajaCajero();
 		}
 	}
 	
@@ -134,6 +138,55 @@ public class CuentaAdministrador extends CuentaBancaria {
 				return;
 			}
 		}
+	}
+	
+	public void darBajaCajero() {
+		if (Cajero.getCajeros().size() == 0) {
+			JOptionPane.showMessageDialog(null, "No hay ningun cajero cargado");
+			return;
+		}
+		if (Cajero.getCajeros().size() == 1 && Cajero.getCajeros().get(0).getSaldo() > 0) {
+			JOptionPane.showMessageDialog(null, "No se puede dar de baja el cajero"
+					+ "\nYa que contiene saldo y no hay ningun otro cajero en el sistema para poder transferir ese saldo"
+					+ "\nSolucion: agregue un nuevo cajero y podra dar de baja a este");
+			return;
+		}
+		String [] cajeros = Cajero.incluirCajeros();
+		
+		String cajero = (String) JOptionPane.showInputDialog(null, "Elija el cajero que quiere dar de baja", "Cajeros", 0, null, cajeros, cajeros[0]);
+		
+		Cajero cajeroBaja = null;
+		Cajero cajeroTransferido = null;
+		
+		for (int i = 0; i < cajeros.length; i++) {
+			if (cajero.equals(cajeros[i])) {
+				cajeroBaja = Cajero.getCajeros().get(i);
+				break;
+			}
+		}
+		if (cajeroBaja.getSaldo() == 0) {
+			Cajero.getCajeros().remove(cajeroBaja);
+			return;
+		}
+		ArrayList <Cajero> cajerosTransferibles = Cajero.getCajeros();
+		cajerosTransferibles.remove(cajeroBaja);
+		
+		String [] cajerosTransferiblesArray = new String[cajerosTransferibles.size()];
+		
+		for (int i = 0; i < cajerosTransferiblesArray.length; i++) {
+			cajerosTransferiblesArray[i] = cajerosTransferibles.get(i).getUbicacion();
+		}
+		
+		String cajeroTransferidoString = (String) JOptionPane.showInputDialog(null, "Elija el cajero al cual se va transferir el dinero", "Cajeros disponibles", 0, null, cajerosTransferiblesArray, cajerosTransferiblesArray[0]);
+		
+		for (int i = 0; i < cajerosTransferiblesArray.length; i++) {
+			if (cajerosTransferiblesArray[i].equals(cajeroTransferidoString)) {
+				cajeroTransferido = cajerosTransferibles.get(i);
+				break;
+			}
+		}
+		cajeroTransferido.sumarSaldo(cajeroBaja.getSaldo());
+		Cajero.getCajeros().remove(cajeroBaja);
 	}
 
 	public CuentaAdministrador(CuentaBancaria cuentaBancaria) {

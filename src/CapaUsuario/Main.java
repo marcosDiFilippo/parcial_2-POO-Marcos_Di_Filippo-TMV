@@ -77,6 +77,9 @@ public class Main {
 							case 4:
 								cuentaBancaria.verMovimientosPorCategoria(movimientosCategoria);
 								break;
+							default:
+								
+								break;
 							}
 							break;
 						case 4:

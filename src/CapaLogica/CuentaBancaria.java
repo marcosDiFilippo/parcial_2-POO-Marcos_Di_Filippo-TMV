@@ -32,6 +32,7 @@ public abstract class CuentaBancaria {
 		this.alias = usuario.getNombre() + numeroCuentaBancaria;
 	}
 	
+	//constructor para cuando un admin cambia el rol de una cuenta
 	public CuentaBancaria(CuentaBancaria cuentaBancaria) {
 		this.saldo = cuentaBancaria.getSaldo();
 		this.usuario = cuentaBancaria.getUsuario();
@@ -188,7 +189,11 @@ public abstract class CuentaBancaria {
 		
 		actualizarSaldo(total);
 		
-		return new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, cajeroSeleccionado);
+		MovimientoPorCajero movimientoPorCajero = new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, cajeroSeleccionado);
+		
+		cajeroSeleccionado.agregarMovimientos(movimientoPorCajero);
+		
+		return movimientoPorCajero;
 	}
 	
 	public boolean validarDeposito(String campo) {
@@ -200,6 +205,12 @@ public abstract class CuentaBancaria {
 	}
 	
 	public void retirarDinero() {
+		boolean saldoNulo = verificarSaldo();
+		
+		if (saldoNulo == true) {
+			return;
+		}
+
 		if (Cajero.getCajeros().size() == 0) {
 			JOptionPane.showMessageDialog(null, "Lo sentimos no hay cajeros disponibles, vuelva a intentar mas tarde");
 			return;
@@ -223,22 +234,11 @@ public abstract class CuentaBancaria {
 		boolean esNegativo = false;
 		boolean tieneLetras = false;
 		boolean esMayorAlSaldo = false;
-		boolean esTotalMayorAlSaldo = false;
+		boolean esMontoMayorSaldo = false;
 		
-		boolean saldoNulo = verificarSaldo();
-
-		double comision = 0;
-		
-		double total = 0;
-		
-		if (saldoNulo == true) {
-			return;
-		}
 		
 		do {
-			monto = JOptionPane.showInputDialog("Ingrese el monto a retirar de la cuenta"
-					+ "\nTenga en cuenta que el monto ingresado se le va sumar una comision"
-					+ "\nEl total de la suma de ambos es lo que se resta de su cuenta");
+			monto = JOptionPane.showInputDialog("Ingrese el monto a retirar de la cuenta");
 			
 			esVacio = Validacion.validarCampoVacio(monto, "monto");
 			if (esVacio == true) {
@@ -261,31 +261,24 @@ public abstract class CuentaBancaria {
 				continue;
 			}
 			
-			if (esNegativo == false || esVacio == false || tieneLetras == false || esMayorAlSaldo == false) {				
-				if (Double.parseDouble(monto) > 100000) {			
-					comision = calcularComision(cajeroSeleccionado.getMedioOperacion().getNombreMedio(), Double.parseDouble(monto));
-				}
-			}
-			
-			esTotalMayorAlSaldo = validarTotalMayorSaldo(Double.parseDouble(monto), comision);
-			if (esTotalMayorAlSaldo == true) {
+			esMontoMayorSaldo = validarMontoMayorSaldo(Double.parseDouble(monto));
+			if (esMontoMayorSaldo == true) {
 				continue;
 			}
 			
-		} while (esNegativo == true || esVacio == true || tieneLetras == true || esMayorAlSaldo == true || esTotalMayorAlSaldo == true || total > this.saldo);
-		total = Double.parseDouble(monto) + comision;
-		
-		if (Double.parseDouble(monto) > 100000) {			
-			JOptionPane.showMessageDialog(null, "El monto retirado es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + (Double.parseDouble(monto) - comision));
-		}
+		} while (esNegativo == true || esVacio == true || tieneLetras == true || esMayorAlSaldo == true || esMontoMayorSaldo == true);
 		
 		detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
 		
-		restarSaldo(total);
+		restarSaldo(Double.parseDouble(monto));
 		
-		cajeroSeleccionado.restarSaldo(Double.parseDouble(monto) - comision);
+		cajeroSeleccionado.restarSaldo(Double.parseDouble(monto));
 		
-		this.movimientos.add(new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, cajeroSeleccionado));
+		MovimientoPorCajero movimientoPorCajero = new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, cajeroSeleccionado);
+		
+		cajeroSeleccionado.agregarMovimientos(movimientoPorCajero);
+		
+		this.movimientos.add(movimientoPorCajero);
 	}
 	
 	public boolean validarTotalMayorSaldo(double monto, double comision) {
