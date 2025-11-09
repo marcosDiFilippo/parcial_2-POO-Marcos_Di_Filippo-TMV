@@ -1,6 +1,7 @@
 package CapaLogica;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +20,8 @@ public abstract class CuentaBancaria {
 	protected LinkedList <Movimiento> movimientos;
 	protected LinkedList <CuentaBancaria> contactos;
 	protected Rol rol;
+	protected static ArrayList <String> notificacionesGenerales = new ArrayList<String>();
+	protected ArrayList <String> notificacionesPropias;
 	
 	public CuentaBancaria(Usuario usuario, String email, String contrasenia) {
 		this.saldo = 0;
@@ -30,6 +33,7 @@ public abstract class CuentaBancaria {
 		this.contrasenia = contrasenia;
 		numeroCuentaBancaria++;
 		this.alias = usuario.getNombre() + numeroCuentaBancaria;
+		this.notificacionesPropias = new ArrayList<String>();
 	}
 	
 	//constructor para cuando un admin cambia el rol de una cuenta
@@ -43,8 +47,10 @@ public abstract class CuentaBancaria {
 		this.contrasenia = cuentaBancaria.getContrasenia();
 		this.alias = cuentaBancaria.getAlias();
 		this.rol = cuentaBancaria.getRol();
+		this.notificacionesPropias = cuentaBancaria.getNotificacionesPropias();
 	}
 	
+
 	public abstract void realizarOpcionesCuenta(Banco banco);
 	
 	public static String ingresarEmail(Banco banco) {
@@ -675,5 +681,21 @@ public abstract class CuentaBancaria {
 	
 	public void setContactos(LinkedList<CuentaBancaria> contactos) {
 		this.contactos = contactos;
+	}
+	
+	public static ArrayList<String> getNotificacionesGenerales() {
+		return notificacionesGenerales;
+	}
+	
+	public static void setNotificacionesGenerales(ArrayList<String> notificacionesGenerales) {
+		CuentaBancaria.notificacionesGenerales = notificacionesGenerales;
+	}
+	
+	public ArrayList<String> getNotificacionesPropias() {
+		return notificacionesPropias;
+	}
+	
+	public void setNotificacionesPropias(ArrayList<String> notificacionesPropias) {
+		this.notificacionesPropias = notificacionesPropias;
 	}
 }

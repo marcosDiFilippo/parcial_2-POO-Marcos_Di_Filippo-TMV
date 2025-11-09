@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 public class CuentaAdministrador extends CuentaBancaria {
-	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver Cajeros Disponibles", "Dar de baja cajero" ,"Salir"};
+	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver cajeros disponibles", "Dar de baja cajero", "Ver cuentas", "Salir"};
 
 	public CuentaAdministrador(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
@@ -50,6 +50,9 @@ public class CuentaAdministrador extends CuentaBancaria {
 		else if (opcion == 4) {
 			darBajaCajero();
 		}
+		else if (opcion == 5) {
+			verCuentas(banco);
+		}
 	}
 	
 	public void eliminarUsuarios(Banco banco) {
@@ -66,18 +69,24 @@ public class CuentaAdministrador extends CuentaBancaria {
 		
 		String email = (String) JOptionPane.showInputDialog(null, "Que usuario desea eliminar del banco?", "", 0 ,null, usuarios, usuarios[0]);
 		
+		
+		CuentaBancaria cuentaEliminada = null;
+		
 		for (CuentaBancaria cuenta : cuentasBancarias) {
 			if (cuenta.getEmail().equals(email)) {
+				cuentaEliminada = cuenta;
 				int opcion = JOptionPane.showConfirmDialog(null, "Realmente quiere eliminar a este usuario?", "", JOptionPane.YES_NO_OPTION, 0,null);
 				if (opcion == JOptionPane.YES_OPTION) {
-					JOptionPane.showMessageDialog(null, "Se ha eliminado al usuario " + cuenta.getEmail());
-					banco.getCuentasBancarias().remove(cuenta);
+					JOptionPane.showMessageDialog(null, "Se ha eliminado al usuario " + cuentaEliminada.getEmail());
+					banco.getCuentasBancarias().remove(cuentaEliminada);
 					return;
 				}
 				JOptionPane.showMessageDialog(null, "No se ha eliminado a ningun usuario");
 				return;
 			}
 		}
+		
+		this.notificacionesPropias.add("Eliminaste a la cuenta: " + cuentaEliminada.getUsuario().getNombre() + " " + cuentaEliminada.getUsuario().getApellido() + " - " + cuentaEliminada.getEmail());
 	}
 	
 	public void cambiarRoles(Banco banco) {
@@ -91,6 +100,10 @@ public class CuentaAdministrador extends CuentaBancaria {
 		List <CuentaBancaria> cuentasFiltradas = cuentasBancarias.stream()
 				.filter(cuenta -> !cuenta.getRol().equals(Rol.ADMINISTRADOR))
 				.collect(Collectors.toList());
+		if (cuentasFiltradas.size() == 0) {
+			JOptionPane.showMessageDialog(null, "No hay cuentas de clientes registradas");
+			return;
+		}
 		
 		String [] usuarios = new String[cuentasFiltradas.size()];
 		
@@ -102,15 +115,17 @@ public class CuentaAdministrador extends CuentaBancaria {
 		
 		int index = 0;
 		
+		CuentaBancaria cuentaModificada = null;
 		for (CuentaBancaria cuenta : cuentasFiltradas) {
 			index++;
 			if (cuenta.getEmail().equals(email)) {
+				cuentaModificada = cuenta;
 				Rol rol;
 				int opcionRol = JOptionPane.showOptionDialog(null, 
 					"Elija el rol para el usuario: \n" 
-					+ cuenta.toString() 
+					+ cuentaModificada.toString() 
 					+ "\n-----------------------------------"
-					+ "\nROL ACTUAL: " + cuenta.getRol()
+					+ "\nROL ACTUAL: " + cuentaModificada.getRol()
 				, "", 0, 0, null, Rol.values(), Rol.values()[0]);
 				
 				if (opcionRol == 0) {
@@ -123,13 +138,13 @@ public class CuentaAdministrador extends CuentaBancaria {
 				int opcion = JOptionPane.showConfirmDialog(null, "Realmente quiere modificar el rol de este usuario? \n" + cuenta.toString(), "", JOptionPane.YES_NO_OPTION, 0, null);
 				
 				if (opcion == JOptionPane.YES_OPTION) {
-					mensaje += "Cuenta modificada: \n" + cuenta.toString();
+					mensaje += "Cuenta modificada: \n" + cuentaModificada.toString();
 					
-					cuenta.setRol(rol);
+					cuentaModificada.setRol(rol);
 					
-					banco.getCuentasBancarias().set(index, CuentaAdministrador.crearNuevoAdministrador(cuenta));
+					banco.getCuentasBancarias().set(index, CuentaAdministrador.crearNuevoAdministrador(cuentaModificada));
 					
-					mensaje += "\nRol asignado: " + cuenta.getRol();
+					mensaje += "\nRol asignado: " + cuentaModificada.getRol();
 					
 					JOptionPane.showMessageDialog(null, mensaje);
 					return;
@@ -185,8 +200,35 @@ public class CuentaAdministrador extends CuentaBancaria {
 				break;
 			}
 		}
+		double saldoAntesBaja = cajeroTransferido.getSaldo();
 		cajeroTransferido.sumarSaldo(cajeroBaja.getSaldo());
+		JOptionPane.showMessageDialog(null, "Se ha realizado la transaccion de dinero"
+				+ "\nCajero Eliminado"
+				+ cajeroBaja.toString()
+				+ "\n----------------------------------------------------"
+				+ "\nCajero transferido\n"
+				+ cajeroTransferido.toString()
+				+ "\nSaldo antes de la baja: " + saldoAntesBaja);
+		
 		Cajero.getCajeros().remove(cajeroBaja);
+	}
+	
+	public void verCuentas(Banco banco) {
+		if (banco.getCuentasBancarias().size() == 0) {
+			JOptionPane.showMessageDialog(null, "No hay cuentas cargadas");
+			return;
+		}
+		
+		String mensaje = "---Cuentas---"
+				+ "\nNombre completo | Correo electronico | Saldo \n";
+		
+		for (int i = 0; i < banco.getCuentasBancarias().size(); i++) {
+			CuentaBancaria cuentaBancaria = banco.getCuentasBancarias().get(i);
+			Usuario usuario = cuentaBancaria.getUsuario();
+			mensaje += usuario.getNombre() + " " + usuario.getApellido() + " | " + cuentaBancaria.getEmail() + " | " + cuentaBancaria.getSaldo() + "\n";
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
 	}
 
 	public CuentaAdministrador(CuentaBancaria cuentaBancaria) {

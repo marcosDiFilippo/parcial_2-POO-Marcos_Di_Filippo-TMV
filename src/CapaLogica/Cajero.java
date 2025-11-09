@@ -102,7 +102,6 @@ public class Cajero {
 
 	@Override
 	public String toString() {
-		String mensaje = "Cajeros: \n" + "Ubicacion: " + ubicacion + " | Saldo: " + saldo + "\n";
-		return mensaje;
+		return "Ubicacion: " + ubicacion + " | Saldo: " + saldo + "\n";
 	}
 }
