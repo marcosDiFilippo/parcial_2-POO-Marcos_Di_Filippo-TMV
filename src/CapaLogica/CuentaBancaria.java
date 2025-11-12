@@ -50,11 +50,10 @@ public abstract class CuentaBancaria {
 		this.notificacionesPropias = cuentaBancaria.getNotificacionesPropias();
 	}
 	
-
 	public abstract void realizarOpcionesCuenta(Banco banco);
 	
 	public static String ingresarEmail(Banco banco) {
-		String email;
+		String email; 
 		boolean emailVacio;
 		boolean existeEmail = false;
 		
@@ -105,8 +104,66 @@ public abstract class CuentaBancaria {
 		return contrasenia;
 	}
 	
+	public String cambiarEmail(Banco banco) {
+		String email; 
+		boolean emailVacio;
+		boolean existeEmail = false;
+		
+		String emailActual = this.email;
+		
+		do {
+			email = JOptionPane.showInputDialog("Ingrese el nuevo email");
+			emailVacio = Validacion.validarCampoVacio(email, "email");
+			if (emailVacio == true) {
+				continue;
+			}
+			if (!email.contains("@")) {
+				JOptionPane.showMessageDialog(null, "El email no contiene @, por favor vuelva ingresar");
+			}
+			for (CuentaBancaria cuentaBancaria : banco.getCuentasBancarias()) {
+				String emailCoincidente = cuentaBancaria.getEmail();
+				if (email.equals(emailCoincidente)) {
+					JOptionPane.showMessageDialog(null, "El email ingresado ya existe por favor ingrese otro");
+					existeEmail = true;
+					break;
+				}
+				else {
+					existeEmail = false;
+				}
+			}
+		} while (emailVacio == true || !email.contains("@") || existeEmail == true);
+		
+		this.notificacionesPropias.add("Has cambiado el email de " + emailActual + ", a " + email + " | " + LocalDate.now());
+		
+		return email;
+	}
+	
+	public String cambiarContrasenia() {
+		String contrasenia;
+		String contraseniaConfirmada = null;
+		boolean esVacio;
+		
+		do {
+			contrasenia = JOptionPane.showInputDialog("Ingrese una nueva contrasenia");
+			esVacio = Validacion.validarCampoVacio(contrasenia, "contrasenia");
+			
+			if (esVacio == true) {
+				continue;
+			}
+			
+			contraseniaConfirmada = JOptionPane.showInputDialog("Ingrese nuevamente la contrasenia");
+			if (!contraseniaConfirmada.equals(contrasenia)) {					
+				JOptionPane.showMessageDialog(null, "Las contrasenias no coinciden por favor vuelva ingresar");
+			}
+		} while (contrasenia.isEmpty() || !contraseniaConfirmada.equals(contrasenia));
+		
+		this.notificacionesPropias.add("Has cambiado la contrasenia | " + LocalDate.now());
+		
+		return contrasenia;
+	}
+	
 	public boolean validarEmailActual() {
-		String email = JOptionPane.showInputDialog("Ingrese su email para poder cambiarla");
+		String email = JOptionPane.showInputDialog("Ingrese su email actual para poder cambiarlo");
 		if (email.equals(this.email)) {
 			JOptionPane.showMessageDialog(null, "El email ingresado es correcto");
 			return true;
@@ -116,7 +173,7 @@ public abstract class CuentaBancaria {
 	}
 	
 	public boolean validarContraseniaActual() {
-		String contrasenia = JOptionPane.showInputDialog("Ingrese su contrasenia para poder cambiarla");
+		String contrasenia = JOptionPane.showInputDialog("Ingrese su contrasenia actual para poder cambiarla");
 		if (contrasenia.equals(this.contrasenia)) {
 			JOptionPane.showMessageDialog(null, "La contrasenia ingresada es correcto");
 			return true;
@@ -133,7 +190,7 @@ public abstract class CuentaBancaria {
 		return new CuentaCliente(usuario, email, contrasenia);
 	}
 	
-	public MovimientoPorCajero depositarDinero() {
+	public Movimiento depositarDinero() {
 		if (Cajero.getCajeros().size() == 0) {
 			JOptionPane.showMessageDialog(null, "Lo sentimos no hay cajeros disponibles, vuelva a intentar mas tarde");
 			return null;
@@ -144,6 +201,7 @@ public abstract class CuentaBancaria {
 		boolean esNegativo = false;
 		boolean tieneLetras = false;
 		boolean mayorAlLimite = false;
+		boolean estaEnRango = false;
 		String ubicacionCajero = (String) JOptionPane.showInputDialog(null, "Ingrese el cajero en el cual se realizara el deposito", "", 0, null, Cajero.incluirCajeros(), Cajero.incluirCajeros()[0]);
 		
 		Cajero cajeroSeleccionado = null;
@@ -158,7 +216,6 @@ public abstract class CuentaBancaria {
 		do {
 			monto = JOptionPane.showInputDialog("Ingrese el monto "
 					+ "de deposito (solo numeros)");
-			
 			esVacio = Validacion.validarCampoVacio(monto, "monto");
 			if (esVacio == true) {
 				continue;
@@ -174,11 +231,20 @@ public abstract class CuentaBancaria {
 				continue;
 			}
 			
+			if (Double.parseDouble(monto) == 0 || Double.parseDouble(monto) < 1000) {
+				JOptionPane.showMessageDialog(null, "El monto a ingresar tiene que ser por lo menos mayor o igual a 1000");
+				estaEnRango = false;
+				continue;
+			}
+			else {
+				estaEnRango = true;
+			}
+			
 			mayorAlLimite = validarDeposito(monto);
 			if (mayorAlLimite == true) {
 				continue;
 			}
-		} while (tieneLetras == true || esVacio == true || esNegativo == true || mayorAlLimite == true);
+		} while (tieneLetras == true || esVacio == true || esNegativo == true || mayorAlLimite == true || estaEnRango == false);
 		
 		String detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre el deposito (opcional)");
 		
@@ -187,19 +253,27 @@ public abstract class CuentaBancaria {
 		
 		if (Double.parseDouble(monto) > 100000) {
 			comision = calcularComision(cajeroSeleccionado.getMedioOperacion().getNombreMedio(), Double.parseDouble(monto));
-			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + total);
+
+			total = Double.parseDouble(monto) - comision;
 		}
-		total = Double.parseDouble(monto) - comision;
+		if (total > 0) {
+			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + total);			
+		}
+		else {
+			total = Double.parseDouble(monto);
+			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es menor a 100000, asique no se ha aplicado ninguna comision" 
+			+ "\nTotal: " + total);	
+		}
 		
 		cajeroSeleccionado.sumarSaldo(Double.parseDouble(monto) + comision);
 		
 		actualizarSaldo(total);
 		
-		MovimientoPorCajero movimientoPorCajero = new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO, cajeroSeleccionado);
+		Movimiento movimiento = new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.DEPOSITO);
 		
-		cajeroSeleccionado.agregarMovimientos(movimientoPorCajero);
+		cajeroSeleccionado.agregarMovimientos(movimiento);
 		
-		return movimientoPorCajero;
+		return movimiento;
 	}
 	
 	public boolean validarDeposito(String campo) {
@@ -210,16 +284,16 @@ public abstract class CuentaBancaria {
 		return false;
 	}
 	
-	public void retirarDinero() {
+	public Movimiento retirarDinero() {
 		boolean saldoNulo = verificarSaldo();
 		
 		if (saldoNulo == true) {
-			return;
+			return null;
 		}
 
 		if (Cajero.getCajeros().size() == 0) {
 			JOptionPane.showMessageDialog(null, "Lo sentimos no hay cajeros disponibles, vuelva a intentar mas tarde");
-			return;
+			return null;
 		}
 		
 		String ubicacionCajero = (String) JOptionPane.showInputDialog(null, "Ingrese el cajero en el cual se realizara el retiro", "", 0, null, Cajero.incluirCajeros(), Cajero.incluirCajeros()[0]);
@@ -280,23 +354,11 @@ public abstract class CuentaBancaria {
 		
 		cajeroSeleccionado.restarSaldo(Double.parseDouble(monto));
 		
-		MovimientoPorCajero movimientoPorCajero = new MovimientoPorCajero(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO, cajeroSeleccionado);
+		Movimiento movimiento = new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.RETIRO);
 		
-		cajeroSeleccionado.agregarMovimientos(movimientoPorCajero);
+		cajeroSeleccionado.agregarMovimientos(movimiento);
 		
-		this.movimientos.add(movimientoPorCajero);
-	}
-	
-	public boolean validarTotalMayorSaldo(double monto, double comision) {
-		double total = monto + comision;
-		if (total > saldo) {
-			JOptionPane.showMessageDialog(null, "No se ha podido realizar el retiro"
-					+ "\nEl saldo de la cuenta es de: " + saldo
-					+ "\nEl monto ingresado " + monto + " junto con la comision " + comision
-					+ " da un total de: " + total );
-			return true;
-		}
-		return false;
+		return movimiento;
 	}
 	
 	public String[] incluirContactos() {
@@ -312,9 +374,9 @@ public abstract class CuentaBancaria {
 		return contactos;
 	}
 	
-	public void transferirDinero(Banco banco) {
+	public Movimiento transferirDinero(Banco banco) {
 		if (verificarSaldo() == true) {
-			return;
+			return null;
 		}
 		String [] contactos = incluirContactos();
 		
@@ -329,13 +391,14 @@ public abstract class CuentaBancaria {
 		boolean tieneLetras = false;
 		boolean montoMayorSaldo = false;
 		String detalles = "";
+		Movimiento transferencia = null;	
 		
 		int opcionElegida = JOptionPane.showOptionDialog(null, "Como quiere realizar la transferencia?", "", 0, 0, null, opciones, opciones[0]);
 		
 		if (opcionElegida == 0) {
 			if (contactos.length == 0) {
 				JOptionPane.showMessageDialog(null, "No tienes un historial de contactos");
-				return;
+				return null;
 			}
 			String cuentaString = (String) JOptionPane.showInputDialog(null, "Contactos", "", 0, null, contactos, contactos[0]);
 			
@@ -371,14 +434,15 @@ public abstract class CuentaBancaria {
 					
 					detalles = JOptionPane.showInputDialog("Desea agregar detalles sobre la transferencia (opcional)");
 					
-					this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA));
+					transferencia = new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA); 
+					
 					cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA_RECIBIDA));
 					
 					break;
 				}
 			}
 			
-			return;
+			return transferencia;
 		}
 		
 		String aliasBuscado;
@@ -424,7 +488,9 @@ public abstract class CuentaBancaria {
 					continue;
 				}
 			} while (esMenorACero == true || tieneLetras == true || montoMayorSaldo == true || esVacio == true);
-			saldo = saldo - Double.parseDouble(monto);
+			
+			this.restarSaldo(Double.parseDouble(monto));
+			
 			break;
 		} while (seEncontroAlias == false);
 		
@@ -434,7 +500,7 @@ public abstract class CuentaBancaria {
 		
 		this.contactos.add(cuentaTransferida);
 		
-		this.movimientos.add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA));
+		transferencia = new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento.TRANSFERENCIA);
 		
 		JOptionPane.showMessageDialog(null, "---Se ha realizado la transferencia---\n"
 				+ "\n➡️Tu Cuenta: \n" + toString()
@@ -444,19 +510,21 @@ public abstract class CuentaBancaria {
 		
 		cuentaTransferida.getMovimientos().add(new Movimiento(incluirTernaria(detalles), Double.parseDouble(monto), Tipo_Movimiento
 				.TRANSFERENCIA_RECIBIDA));
+		
+		return transferencia;
 	}
 	
 	public double calcularComision(NombreMedio nombreMedio, double monto) {
 		double comision = 0;
 		
 		if (nombreMedio == NombreMedio.RAPIPAGO) {
-			comision = monto / 5;
+			comision = monto / 20;
 		}
 		else if (nombreMedio == NombreMedio.PAGOFACIL) {
-			comision = monto / 10;
+			comision = monto / 30;
 		}
 		else {
-			comision = monto / 15;
+			comision = monto / 40;
 		}
 		
 		return comision;
@@ -581,8 +649,27 @@ public abstract class CuentaBancaria {
 		return false;
 	}
 	
-	public void cambiarEmail() {
-		
+	public void verNotificaciones() {
+		if (CuentaBancaria.notificacionesGenerales.size() == 0 && this.notificacionesPropias.size() == 0) {
+			JOptionPane.showMessageDialog(null, "No tienes ninguna notificacion");
+			return;
+		}
+		String mensaje = "";
+		if (CuentaBancaria.notificacionesGenerales.size() > 0) {			
+			mensaje += "---General---\n";
+			
+			for (int i = 0; i < notificacionesGenerales.size(); i++) {
+				mensaje += "- " + notificacionesGenerales.get(i) + "\n";
+			}
+		}
+		if (this.notificacionesPropias.size() > 0) {			
+			mensaje += "---Propias---\n";
+			for (int i = 0; i < this.notificacionesPropias.size(); i++) {
+				mensaje += "- " + this.notificacionesPropias.get(i) + "\n";
+			}
+		}
+
+		JOptionPane.showMessageDialog(null, mensaje);
 	}
 	
 	@Override

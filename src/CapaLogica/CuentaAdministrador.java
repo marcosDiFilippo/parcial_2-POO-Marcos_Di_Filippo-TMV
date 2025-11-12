@@ -1,5 +1,7 @@
 package CapaLogica;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,18 +9,17 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 public class CuentaAdministrador extends CuentaBancaria {
-	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver cajeros disponibles", "Dar de baja cajero", "Ver cuentas", "Salir"};
+	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver cajeros disponibles", "Ver movimientos de cajero", "Dar de baja cajero", "Ver cuentas", "Salir"};
 
 	public CuentaAdministrador(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
+		this.notificacionesPropias.add("Se ha creado la cuenta exitosamente! |" + " Fecha: " + LocalDate.now() + " | Horario: " + LocalDateTime.now().getHour() + ":" + LocalDateTime.now().getMinute() + ":" + LocalDateTime.now().getSecond());
 		setRol(Rol.ADMINISTRADOR);
 	}
 	
 	@Override
 	public void realizarOpcionesCuenta(Banco banco) {
-		int opcion;
-		
-		opcion = JOptionPane.showOptionDialog(null, "Elija la accion a realizar", "", 0, 0, null, permisos, permisos[0]);
+		int opcion = JOptionPane.showOptionDialog(null, "Elija la accion a realizar", "", 0, 0, null, permisos, permisos[0]);
 	
 		if (opcion == 0) {
 			eliminarUsuarios(banco);
@@ -38,6 +39,8 @@ public class CuentaAdministrador extends CuentaBancaria {
 			NombreMedio nombreMedio = (NombreMedio) JOptionPane.showInputDialog(null, "Ingrese el medio de operacion en el cual se encuentra el cajero", "", 0, null, NombreMedio.values(), NombreMedio.values()[0]);
 			
 			Cajero.agregarCajero(new Cajero(ubicacion, new MedioOperacion(nombreMedio)));
+			
+			notificacionesGenerales.add("Se agregado un nuevo cajero en " + ubicacion);
 		}
 		else if (opcion == 3) {
 			String mensaje = "";
@@ -48,10 +51,16 @@ public class CuentaAdministrador extends CuentaBancaria {
 			JOptionPane.showMessageDialog(null, mensaje.isEmpty() ? "No hay cajeros cargados" : mensaje);
 		}
 		else if (opcion == 4) {
-			darBajaCajero();
+			Cajero.verMovimientosCajero();
 		}
 		else if (opcion == 5) {
+			darBajaCajero();
+		}
+		else if (opcion == 6) {
 			verCuentas(banco);
+		}
+		else {
+			return;
 		}
 	}
 	
@@ -79,14 +88,13 @@ public class CuentaAdministrador extends CuentaBancaria {
 				if (opcion == JOptionPane.YES_OPTION) {
 					JOptionPane.showMessageDialog(null, "Se ha eliminado al usuario " + cuentaEliminada.getEmail());
 					banco.getCuentasBancarias().remove(cuentaEliminada);
+					this.notificacionesPropias.add("Eliminaste a la cuenta: " + cuentaEliminada.getUsuario().getNombre() + " " + cuentaEliminada.getUsuario().getApellido() + " - " + cuentaEliminada.getEmail() + "\n");
 					return;
 				}
 				JOptionPane.showMessageDialog(null, "No se ha eliminado a ningun usuario");
 				return;
 			}
-		}
-		
-		this.notificacionesPropias.add("Eliminaste a la cuenta: " + cuentaEliminada.getUsuario().getNombre() + " " + cuentaEliminada.getUsuario().getApellido() + " - " + cuentaEliminada.getEmail());
+		}		
 	}
 	
 	public void cambiarRoles(Banco banco) {
@@ -146,6 +154,8 @@ public class CuentaAdministrador extends CuentaBancaria {
 					
 					mensaje += "\nRol asignado: " + cuentaModificada.getRol();
 					
+					this.notificacionesPropias.add("Has convertido a " + rol + " a la cuenta " + cuentaModificada.getUsuario().getNombre() + " " + cuentaModificada.getUsuario().getApellido() + " - " + cuentaModificada.getEmail() + "\n");
+
 					JOptionPane.showMessageDialog(null, mensaje);
 					return;
 				}
@@ -181,6 +191,7 @@ public class CuentaAdministrador extends CuentaBancaria {
 		}
 		if (cajeroBaja.getSaldo() == 0) {
 			Cajero.getCajeros().remove(cajeroBaja);
+			notificacionesGenerales.add("Se ha dado de baja el cajero: " + cajeroBaja.getUbicacion() + " | " + LocalDate.now());
 			return;
 		}
 		ArrayList <Cajero> cajerosTransferibles = Cajero.getCajeros();
@@ -210,7 +221,11 @@ public class CuentaAdministrador extends CuentaBancaria {
 				+ cajeroTransferido.toString()
 				+ "\nSaldo antes de la baja: " + saldoAntesBaja);
 		
-		Cajero.getCajeros().remove(cajeroBaja);
+		notificacionesGenerales.add("Se ha dado de baja el cajero: \n" + cajeroBaja.getUbicacion() 
+		+ "\nTodo el saldo del cajero se ha transferido a: "
+		+ cajeroTransferido.getUbicacion());
+		
+		Cajero.getCajeros().remove(cajeroBaja);		
 	}
 	
 	public void verCuentas(Banco banco) {

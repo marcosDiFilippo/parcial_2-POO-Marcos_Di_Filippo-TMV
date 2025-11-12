@@ -26,6 +26,31 @@ public class Cajero {
 		this.movimientosCajero.add(movimiento);
 	}
 	
+	public static void verMovimientosCajero() {
+		if (cajeros.size() == 0) {
+			JOptionPane.showMessageDialog(null, "No hay cajeros cargados");
+			return;
+		}
+		String mensaje = "Movimientos: \n";
+		
+		String [] cajerosArray = new String[cajeros.size()];
+ 		
+		for (int i = 0; i < cajerosArray.length; i++) {
+			cajerosArray[i] = cajeros.get(i).getUbicacion();
+		}
+		
+		int opcion = JOptionPane.showOptionDialog(null, "Elija el cajero del cual quiere ver sus movimientos", "Cajeros", 0, 0, null, cajerosArray, cajerosArray[0]);
+		
+		String [] movimientos = new String[cajeros.get(opcion).getMovimientosCajero().size()];
+		
+		for (int i = 0; i < movimientos.length; i++) {
+			movimientos[i] = cajeros.get(opcion).getMovimientosCajero().toString();
+			mensaje += movimientos[i];
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
+	}
+	
 	public static String[] incluirCajeros() {
 		String [] cajeros = new String[getCajeros().size()];
 		
@@ -66,12 +91,15 @@ public class Cajero {
 	public String getUbicacion() {
 		return ubicacion;
 	}
+	
 	public void setUbicacion(String ubicacion) {
 		this.ubicacion = ubicacion;
 	}
+	
 	public double getSaldo() {
 		return saldo;
 	}
+	
 	public void setSaldo(double monto) {
 		this.saldo = monto;
 	}

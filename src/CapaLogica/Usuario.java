@@ -42,26 +42,26 @@ public class Usuario {
 		
 		do {
 			nombre = JOptionPane.showInputDialog("Ingrese su nombre");
-			campoVacio = validarCamposVacios(nombre, "nombre");
+			campoVacio = Validacion.validarCampoVacio(nombre, "nombre");
 		} while (campoVacio == true);
 		
 		campoVacio = false;
 		do {
 			apellido = JOptionPane.showInputDialog("Ingrese su apellido");
 			
-			campoVacio = validarCamposVacios(apellido, "apellido");
+			campoVacio = Validacion.validarCampoVacio(apellido, "apellido");
 		} while (campoVacio == true);
 		
 		campoVacio = false;
 		do {
 			anio = JOptionPane.showInputDialog("Ingrese su anio de nacimiento");
 			
-			campoVacio = validarCamposVacios(anio, "anio");
+			campoVacio = Validacion.validarCampoVacio(anio, "anio");
 			if (campoVacio == true) {
 				continue;
 			}
 
-			fechaTieneLetras = verificarLetrasCampos(anio, "anio");
+			fechaTieneLetras = Validacion.validarLetrasCampo(anio, "anio");
 			
 			if (fechaTieneLetras == true) {
 				continue;
@@ -146,32 +146,6 @@ public class Usuario {
 			}
 		}
 		return null;
-	}
-	
-	public boolean validarCampoVacio(String campo, String nombreCampo) {
-		if (campo.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " es obligatorio, por favor vuelva ingresar");
-			return true;
-		}
-		return false;
-	}
-	
-	public static boolean validarCamposVacios(String campo, String nombreCampo) {
-		if (campo.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " es obligatorio, por favor vuelva ingresar");
-			return true;
-		}
-		return false;
-	}
-	
-	public static boolean verificarLetrasCampos(String campo, String nombreCampo) {
-		for (int i = 0; i < campo.length(); i++) {
-			if (!Character.isDigit(campo.charAt(i))) {
-				JOptionPane.showMessageDialog(null, "El " + nombreCampo + " no puede contener letras, por favor vuelva ingresar");
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	public String verInformacion() {

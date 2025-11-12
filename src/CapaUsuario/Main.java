@@ -14,7 +14,7 @@ import CapaLogica.Usuario;
 public class Main {
 	public static void main(String[] args) {
 		String [] opciones = {"Crear Cuenta Bancaria", "Iniciar Sesion", "Salir"};
-		String [] opcionesGenerales = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Opciones Cuenta" ,"Salir"};
+		String [] opcionesGenerales = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Opciones Cuenta", "Notificaciones", "Salir"};
 		String [] opcionesMovimiento = {"Ver general", "Mas Recientes", "Por mayor monto", "Por menor monto", "Por Categoria","Salir"};
 		String [] movimientosCategoria = {"Depositos", "Retiros", "Transferencias", "Transferencias Recibidas" ,"Salir"};
 		
@@ -50,7 +50,10 @@ public class Main {
 							}
 							break;	
 						case 1:
-							cuentaBancaria.retirarDinero(); 
+							Movimiento retiro = cuentaBancaria.retirarDinero();
+							if (retiro != null) {
+								cuentaBancaria.getMovimientos().add(retiro);
+							}
 							break;
 						case 2:
 							cuentaBancaria.transferirDinero(banco);
@@ -78,12 +81,15 @@ public class Main {
 								cuentaBancaria.verMovimientosPorCategoria(movimientosCategoria);
 								break;
 							default:
-								
+								cuentaBancaria.verNotificaciones();
 								break;
 							}
 							break;
 						case 4:
 							cuentaBancaria.realizarOpcionesCuenta(banco);
+							break;
+						case 5:
+							cuentaBancaria.verNotificaciones();
 							break;
 						default:
 							JOptionPane.showMessageDialog(null, "Has cerrado sesion");

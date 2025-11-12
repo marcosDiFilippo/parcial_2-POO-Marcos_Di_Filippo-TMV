@@ -1,5 +1,8 @@
 package CapaLogica;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import javax.swing.JOptionPane;
 
 public class CuentaCliente extends CuentaBancaria  {
@@ -7,6 +10,7 @@ public class CuentaCliente extends CuentaBancaria  {
 	
 	public CuentaCliente(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
+		this.notificacionesPropias.add("Se ha creado la cuenta exitosamente! |" + " Fecha: " + LocalDate.now() + " | Horario: " + LocalDateTime.now().getHour() + ":" + LocalDateTime.now().getMinute() + ":" + LocalDateTime.now().getSecond());
 		setRol(Rol.CLIENTE);
 	}
 	
@@ -22,7 +26,7 @@ public class CuentaCliente extends CuentaBancaria  {
 				return;
 			}
 			
-			String email = ingresarEmail(banco);
+			String email = cambiarEmail(banco);
 			
 			setEmail(email);
 		}
@@ -31,7 +35,7 @@ public class CuentaCliente extends CuentaBancaria  {
 				return;
 			}
 			
-			String contrasenia = ingresarContrasenia();
+			String contrasenia = cambiarContrasenia();
 			
 			setContrasenia(contrasenia);
 		}
