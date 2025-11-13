@@ -41,9 +41,9 @@ public class Validacion {
 		
 		return false;
 	}
-	public int confirmarSeguirIngresando () {
+	public static int confirmarIngreso () {
 		int opcion = JOptionPane.showConfirmDialog(null, "Desea seguir ingresando los datos?"
-				+ "\nSi presiona cancelar lo redireccionara a la interfaz", "Eleccion", JOptionPane.YES_NO_OPTION, 0, null);
+				+ "\nSi presiona cancelar lo redireccionara a la interfaz anterior", "Eleccion", JOptionPane.YES_NO_OPTION, 0, null);
 		
 		return opcion;
 	}

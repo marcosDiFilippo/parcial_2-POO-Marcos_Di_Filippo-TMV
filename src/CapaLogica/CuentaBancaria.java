@@ -187,6 +187,13 @@ public abstract class CuentaBancaria {
 		
 		String contrasenia = ingresarContrasenia();
 		
+		int opcion = Validacion.confirmarIngreso();
+		
+		if (opcion == JOptionPane.NO_OPTION) {
+			JOptionPane.showMessageDialog(null, "Has cancelado la creacion de la cuenta");
+			return null;
+		}
+		
 		return new CuentaCliente(usuario, email, contrasenia);
 	}
 	

@@ -32,8 +32,13 @@ public class Main {
 			switch (opcionElegida) {
 			case 0:
 				Usuario usuarioCreado = Usuario.crearUsuario(banco);
+				if (usuarioCreado == null) {
+					continue;
+				}
 				CuentaBancaria cuentaCreada = CuentaBancaria.crearCuentaBancaria(usuarioCreado, banco);
-				banco.agregarCuentasBancarias(cuentaCreada);
+				if (cuentaCreada != null) {					
+					banco.agregarCuentasBancarias(cuentaCreada);
+				}
 				break;
 			case 1:
 				CuentaBancaria cuentaBancaria = Usuario.iniciarSesion(banco);

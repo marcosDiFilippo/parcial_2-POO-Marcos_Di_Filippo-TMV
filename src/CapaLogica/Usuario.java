@@ -32,14 +32,17 @@ public class Usuario {
 		String anio;
 		
 		String telefono;
+		String telefonoAux;
 		String dni;
 		String dniAux;
 		
-		boolean campoVacio;
+		boolean campoVacio = false;
 		boolean existeDni = false;
 		boolean existeTelefono = false;
-		boolean fechaTieneLetras = false;
+		boolean tieneLetras = false;
 		boolean fechaDespuesDeHoy = false;
+		boolean esNumeroNegativo = false;
+		boolean esMayorAlLimite = false;
 		
 		do {
 			nombre = JOptionPane.showInputDialog("Ingrese su nombre");
@@ -62,8 +65,8 @@ public class Usuario {
 				continue;
 			}
 
-			fechaTieneLetras = Validacion.validarLetrasCampo(anio, "anio");
-			if (fechaTieneLetras == true) {
+			tieneLetras = Validacion.validarLetrasCampo(anio, "anio");
+			if (tieneLetras == true) {
 				continue;
 			}
 			
@@ -72,7 +75,7 @@ public class Usuario {
 				fechaDespuesDeHoy = true;
 				continue;
 			}
-		} while (campoVacio == true || fechaDespuesDeHoy == true || fechaTieneLetras == true);
+		} while (campoVacio == true || fechaDespuesDeHoy == true || tieneLetras == true);
 		
 		Mes mes = (Mes) JOptionPane.showInputDialog(null, "Elija su mes de nacimiento", "", 0, null, Mes.values(), Mes.values()[0]);
 		
@@ -87,20 +90,23 @@ public class Usuario {
 			
 			dni = dniAux.replaceAll("\\s+", "");
 			
-			if (Validacion.validarCampoVacio(dni, "dni")) {
+			campoVacio = Validacion.validarCampoVacio(dni, "dni");
+			if (campoVacio == true) {
 				continue;
 			}
-			if (Validacion.validarLetrasCampo(dni, "dni") == true) {
+			
+			tieneLetras = Validacion.validarLetrasCampo(dni, "dni");
+			if (tieneLetras == true) {
 				continue;
 			}
-			if (Validacion.validarTamanioCadena(dni, "dni", 10) == true) {
+			
+			esMayorAlLimite = Validacion.validarTamanioCadena(dni, "dni", 10);
+			if (esMayorAlLimite == true) {
 				continue;
 			}
-			if (Validacion.verificarNumeroNegativo(dia, "dni")) {
-				
-			}
-			if (Integer.parseInt(dni) < 0) {
-				JOptionPane.showMessageDialog(null, "El dni ingresado es invalido (no puede ser menor a 0)");
+			
+			esNumeroNegativo = Validacion.verificarNumeroNegativo(Double.parseDouble(dni), "dni");
+			if (esNumeroNegativo == true) {
 				continue;
 			}
 			for (CuentaBancaria cuentaBancariaCoincidente : banco.getCuentasBancarias()) {
@@ -112,18 +118,35 @@ public class Usuario {
 				}
 				existeDni = false;
 			}
-		} while (dni.isEmpty() || Integer.parseInt(dni) < 0 || existeDni == true);
+		} while (campoVacio == true || esNumeroNegativo == true || existeDni == true || tieneLetras == true || esMayorAlLimite == true);
 		
 		do {
-			telefono = JOptionPane.showInputDialog("Ingrese su numero de telefono");
-			if (telefono.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "El telefono es obligatorio");
+			telefonoAux = JOptionPane.showInputDialog("Ingrese su numero de telefono");
+			
+			telefono = telefonoAux.replaceAll("\\s+", "");
+			
+			campoVacio = Validacion.validarCampoVacio(telefono, "telefono");
+			if (campoVacio == true) {
+				continue;
 			}
-			else {				
-				if (Integer.parseInt(telefono) < 0) {
-					JOptionPane.showMessageDialog(null, "El telefono ingresado es invalido (no puede ser menor a 0)");
-				}
+			
+			tieneLetras = Validacion.validarLetrasCampo(telefono, "telefono");
+			if (tieneLetras == true) {
+				continue;
 			}
+			
+			esNumeroNegativo = Validacion.validarLetrasCampo(telefono, "telefono");
+			
+			if (esNumeroNegativo == true) {
+				continue;
+			}
+			
+			esMayorAlLimite = Validacion.validarTamanioCadena(telefono, "telefono", 15);
+			
+			if (esMayorAlLimite == true) {
+				continue;
+			}
+			
 			for (CuentaBancaria cuentaBancariaCoincidente : banco.getCuentasBancarias()) {
 				String telefonoCoincidente = cuentaBancariaCoincidente.getUsuario().getTelefono();
 				if (telefono.equals(telefonoCoincidente)) {
@@ -133,7 +156,14 @@ public class Usuario {
 				}
 				existeTelefono = false;
 			}
-		} while (telefono.isEmpty() || Integer.parseInt(telefono) < 0 || existeTelefono == true);
+		} while (campoVacio == true || esNumeroNegativo == true || existeTelefono == true || tieneLetras == true || esMayorAlLimite == true);
+		
+		int opcion = Validacion.confirmarIngreso();
+		
+		if (opcion == JOptionPane.NO_OPTION) {
+			JOptionPane.showMessageDialog(null, "Has cancelado la creacion de la cuenta");
+			return null;
+		} 
 		
 		return new Usuario(nombre, apellido, LocalDate.of(Integer.parseInt(anio), mes.getNumero(), dia), telefono, dni);
 	}
