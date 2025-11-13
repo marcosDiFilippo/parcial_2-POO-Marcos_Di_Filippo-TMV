@@ -226,7 +226,7 @@ public abstract class CuentaBancaria {
 				continue;
 			}
 			
-			esNegativo = verificarMontoNegativo(Double.parseDouble(monto));
+			esNegativo = Validacion.verificarNumeroNegativo(Double.parseDouble(monto), "monto");
 			if (esNegativo == true) {
 				continue;
 			}
@@ -330,7 +330,7 @@ public abstract class CuentaBancaria {
 				continue;
 			}
 			else {
-				esNegativo = verificarMontoNegativo(Double.parseDouble(monto));
+				esNegativo = Validacion.verificarNumeroNegativo(Double.parseDouble(monto), "monto");
 				if (esNegativo == true) {
 					continue;
 				}
@@ -418,7 +418,7 @@ public abstract class CuentaBancaria {
 							continue;
 						}
 						
-						esMenorACero = verificarMontoNegativo(Double.parseDouble(monto));
+						esMenorACero = Validacion.verificarNumeroNegativo(Double.parseDouble(monto), "monto");
 						if (esMenorACero == true) {
 							continue;
 						}
@@ -623,14 +623,6 @@ public abstract class CuentaBancaria {
 	
 	public String incluirTernaria(String string) {
 		return string.isEmpty() ? "Ninguno" : string;
-	}
-	
-	public boolean verificarMontoNegativo(double monto) {
-		if (monto < 0) {
-			JOptionPane.showMessageDialog(null, "El monto no puede ser menor a 0, por favor vuelva ingresar");
-			return true;
-		}
-		return false;
 	}
 	
 	public boolean validarMontoMayorSaldo(double monto) {

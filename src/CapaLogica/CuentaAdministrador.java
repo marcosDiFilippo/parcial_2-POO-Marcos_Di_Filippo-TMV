@@ -234,8 +234,7 @@ public class CuentaAdministrador extends CuentaBancaria {
 			return;
 		}
 		
-		String mensaje = "---Cuentas---"
-				+ "\nNombre completo | Correo electronico | Saldo \n";
+		String mensaje = "---Cuentas---\n";
 		
 		for (int i = 0; i < banco.getCuentasBancarias().size(); i++) {
 			CuentaBancaria cuentaBancaria = banco.getCuentasBancarias().get(i);

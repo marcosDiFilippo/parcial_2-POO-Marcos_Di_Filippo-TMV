@@ -33,6 +33,7 @@ public class Usuario {
 		
 		String telefono;
 		String dni;
+		String dniAux;
 		
 		boolean campoVacio;
 		boolean existeDni = false;
@@ -62,7 +63,6 @@ public class Usuario {
 			}
 
 			fechaTieneLetras = Validacion.validarLetrasCampo(anio, "anio");
-			
 			if (fechaTieneLetras == true) {
 				continue;
 			}
@@ -83,18 +83,29 @@ public class Usuario {
 		int dia = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Elija su dia de nacimiento", "", 0, null, mes.getDias(), mes.getDias()[0]));
 		
 		do {
-			dni = JOptionPane.showInputDialog("Ingrese su dni");
-			if (dni.isEmpty()) {
-				JOptionPane.showMessageDialog(null, "El dni es obligatorio");
+			dniAux = JOptionPane.showInputDialog("Ingrese su dni");
+			
+			dni = dniAux.replaceAll("\\s+", "");
+			
+			if (Validacion.validarCampoVacio(dni, "dni")) {
+				continue;
 			}
-			else {				
-				if (Integer.parseInt(dni) < 0) {
-					JOptionPane.showMessageDialog(null, "El dni ingresado es invalido (no puede ser menor a 0)");
-				}
+			if (Validacion.validarLetrasCampo(dni, "dni") == true) {
+				continue;
+			}
+			if (Validacion.validarTamanioCadena(dni, "dni", 10) == true) {
+				continue;
+			}
+			if (Validacion.verificarNumeroNegativo(dia, "dni")) {
+				
+			}
+			if (Integer.parseInt(dni) < 0) {
+				JOptionPane.showMessageDialog(null, "El dni ingresado es invalido (no puede ser menor a 0)");
+				continue;
 			}
 			for (CuentaBancaria cuentaBancariaCoincidente : banco.getCuentasBancarias()) {
 				String dniCoincidente = cuentaBancariaCoincidente.getUsuario().getDni();
-				if (dni.equals(dniCoincidente)) {
+				if (dniAux.equals(dniCoincidente)) {
 					JOptionPane.showMessageDialog(null, "El dni ingresado ya existe");
 					existeDni = true;
 					break;
