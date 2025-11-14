@@ -5,10 +5,13 @@ import java.time.LocalDate;
 import javax.swing.JOptionPane;
 
 import CapaLogica.Banco;
+import CapaLogica.Cajero;
 import CapaLogica.CuentaAdministrador;
 import CapaLogica.CuentaBancaria;
 import CapaLogica.CuentaCliente;
+import CapaLogica.MedioOperacion;
 import CapaLogica.Movimiento;
+import CapaLogica.NombreMedio;
 import CapaLogica.Usuario;
 
 public class Main {
@@ -24,6 +27,14 @@ public class Main {
 		
 		banco.agregarCuentasBancarias(new CuentaCliente(new Usuario("marcos", "di filippo", LocalDate.of(2007, 6, 26), "3525", "47"), "marcos@gmail.com", "marcos"));
 		banco.agregarCuentasBancarias(new CuentaCliente(new Usuario("martin", "juncos", LocalDate.of(2005, 5, 5), "35253", "4734"), "martin@gmail.com", "martin"));
+		
+		Cajero cajero = new Cajero("Buenos aires", new MedioOperacion(NombreMedio.RAPIPAGO));
+		Cajero cajero2 = new Cajero("Cordoba", new MedioOperacion(NombreMedio.PAGOFACIL));
+		Cajero cajero3 = new Cajero("Santiago del estero", new MedioOperacion(NombreMedio.BANCO));
+		
+		Cajero.agregarCajero(cajero);
+		Cajero.agregarCajero(cajero2);
+		Cajero.agregarCajero(cajero3);
 		
 		int opcionElegida;
 		
