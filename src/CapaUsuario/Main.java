@@ -9,6 +9,7 @@ import CapaLogica.Cajero;
 import CapaLogica.CuentaAdministrador;
 import CapaLogica.CuentaBancaria;
 import CapaLogica.CuentaCliente;
+import CapaLogica.CuentaInversion;
 import CapaLogica.MedioOperacion;
 import CapaLogica.Movimiento;
 import CapaLogica.NombreMedio;
@@ -17,8 +18,9 @@ import CapaLogica.Usuario;
 public class Main {
 	public static void main(String[] args) {
 		String [] opciones = {"Crear Cuenta Bancaria", "Iniciar Sesion", "Salir"};
-		String [] opcionesGenerales = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Opciones Cuenta", "Notificaciones", "Salir"};
+		String [] opcionesGenerales = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Opciones Cuenta", "Notificaciones", "Inversiones", "Salir"};
 		String [] opcionesMovimiento = {"Ver general", "Mas Recientes", "Por mayor monto", "Por menor monto", "Por Categoria","Salir"};
+		String [] opcionesInversiones = {"Abrir cuenta inversion", "Invertir dinero", "Ver historial", "Salir"};
 		String [] movimientosCategoria = {"Depositos", "Retiros", "Transferencias", "Transferencias Recibidas" ,"Salir"};
 		
 		Banco banco = new Banco("Galicia");
@@ -37,6 +39,7 @@ public class Main {
 		Cajero.agregarCajero(cajero3);
 		
 		int opcionElegida;
+		CuentaInversion cuentaInversion = null;
 		
 		do {
 			opcionElegida = JOptionPane.showOptionDialog(null, "Bienvenido", null, 0, 0, null, opciones, opciones[0]);
@@ -106,6 +109,15 @@ public class Main {
 							break;
 						case 5:
 							cuentaBancaria.verNotificaciones();
+							break;
+						case 6:
+							opcionElegida = JOptionPane.showOptionDialog(null, "Opciones de inversion", "Inversiones", 0, 0, null, opcionesInversiones, opcionesInversiones[0]);
+							if (opcionElegida == 0) {
+								cuentaInversion = cuentaBancaria.crearCuentaInversion();
+								if (cuentaInversion != null) {
+									banco.agregarCuentasInversion(cuentaInversion);
+								}
+							}
 							break;
 						default:
 							JOptionPane.showMessageDialog(null, "Has cerrado sesion");

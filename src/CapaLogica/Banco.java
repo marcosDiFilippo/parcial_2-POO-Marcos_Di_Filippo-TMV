@@ -7,14 +7,20 @@ import java.util.stream.Collectors;
 public class Banco {
 	private String nombre;
 	private ArrayList <CuentaBancaria> cuentasBancarias;
+	private ArrayList <CuentaInversion> cuentasInversion;
 	
 	public Banco(String nombre) {
 		this.nombre = nombre;
 		this.cuentasBancarias = new ArrayList<CuentaBancaria>();
+		this.cuentasInversion = new ArrayList<CuentaInversion>();
 	}
 	
 	public void agregarCuentasBancarias(CuentaBancaria cuentaBancaria) {
 		cuentasBancarias.add(cuentaBancaria);
+	}
+	
+	public void agregarCuentasInversion(CuentaInversion cuentaInversion) {
+		cuentasInversion.add(cuentaInversion);
 	}
 	
 	public List<CuentaBancaria> filtrarCuentas(String alias) {
@@ -39,5 +45,13 @@ public class Banco {
 	
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+	
+	public ArrayList<CuentaInversion> getCuentasInversion() {
+		return cuentasInversion;
+	}
+	
+	public void setCuentasInversion(ArrayList<CuentaInversion> cuentasInversion) {
+		this.cuentasInversion = cuentasInversion;
 	}
 }
