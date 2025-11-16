@@ -136,6 +136,21 @@ public class CuentaInversion {
 				+ "\nPorcentaje promedio de los " + cantidadDias + " dias: " + porcentajePromedio);
 	}
 	
+	public void verHistorial() {
+		if (historialInversiones.size() == 0) {
+			JOptionPane.showMessageDialog(null, "No has hecho ninguna inversion");
+			return;
+		}
+		
+		String mensaje = "---Historial---\n";
+		
+		for (Inversion inversion : historialInversiones) {
+			mensaje += inversion.toString() + "\n";
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
+	}
+	
 	public void agregarInversionHistorial(Inversion inversion) {
 		this.historialInversiones.add(inversion);
 	}
@@ -178,5 +193,11 @@ public class CuentaInversion {
 	
 	public void actualizarSaldo(double monto) {
 		this.saldo += monto;
+	}
+
+	@Override
+	public String toString() {
+		return "\nFechaCreacion: " + fechaCreacion 
+				+ "\nSaldo: " + saldo;
 	}
 }
