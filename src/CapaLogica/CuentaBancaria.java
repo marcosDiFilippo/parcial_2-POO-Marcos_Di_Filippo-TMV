@@ -796,4 +796,12 @@ public abstract class CuentaBancaria {
 	public void setNotificacionesPropias(ArrayList<String> notificacionesPropias) {
 		this.notificacionesPropias = notificacionesPropias;
 	}
+
+	public boolean isTieneCuentaInversion() {
+		return tieneCuentaInversion;
+	}
+
+	public void setTieneCuentaInversion(boolean tieneCuentaInversion) {
+		this.tieneCuentaInversion = tieneCuentaInversion;
+	}
 }

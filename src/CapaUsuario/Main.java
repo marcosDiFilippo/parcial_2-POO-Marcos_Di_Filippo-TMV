@@ -17,6 +17,7 @@ import CapaLogica.Usuario;
 
 public class Main {
 	public static void main(String[] args) {
+		
 		String [] opciones = {"Crear Cuenta Bancaria", "Iniciar Sesion", "Salir"};
 		String [] opcionesGenerales = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Opciones Cuenta", "Notificaciones", "Inversiones", "Salir"};
 		String [] opcionesMovimiento = {"Ver general", "Mas Recientes", "Por mayor monto", "Por menor monto", "Por Categoria","Salir"};
@@ -117,6 +118,13 @@ public class Main {
 								if (cuentaInversion != null) {
 									banco.agregarCuentasInversion(cuentaInversion);
 								}
+							}
+							if (cuentaInversion == null) {
+								JOptionPane.showMessageDialog(null, "No hay ninguna cuenta de inversion abierta");
+								continue;
+							}
+							if (opcionElegida == 1) {
+								cuentaInversion.realizarInversion();
 							}
 							break;
 						default:

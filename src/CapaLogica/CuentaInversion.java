@@ -8,13 +8,13 @@ import javax.swing.JOptionPane;
 public class CuentaInversion {
 	private CuentaBancaria cuentaBancaria;
 	private LocalDate fechaCreacion;
-	private ArrayList <String> historialInversiones;
+	private ArrayList <Inversion> historialInversiones;
 	private double saldo;
 	
 	public CuentaInversion(CuentaBancaria cuentaBancaria) {
 		this.cuentaBancaria = cuentaBancaria;
 		this.fechaCreacion = LocalDate.now();
-		this.historialInversiones = new ArrayList<String>();
+		this.historialInversiones = new ArrayList<Inversion>();
 		this.saldo = 0;
 	}
 	
@@ -54,6 +54,10 @@ public class CuentaInversion {
 			
 		} while (tieneLetras == true || esVacio == true || esNegativo == true);
 		
+		this.cuentaBancaria.restarSaldo(Double.parseDouble(monto));
+		
+		this.actualizarSaldo(Double.parseDouble(monto));
+		
 		String cantidadDias;
 		
 		do {
@@ -88,9 +92,52 @@ public class CuentaInversion {
 			
 		} while (esVacio == true || tieneLetras == true || esNegativo == true);
 		
+		double saldoInicial = this.saldo;
+		double comision = 0;
+		double montoCalculado = 0;
+		float porcentajePromedio = 0;
+		double montoGanado = 0;
+		double montoPerdido = 0;
+		
+		
 		for (int i = 0; i < Integer.parseInt(cantidadDias); i++) {
+			comision = Math.random() * 10 - 5;
 			
+			porcentajePromedio += comision;
+			
+			montoCalculado = (this.saldo * comision) / 100;
+			
+			if (montoCalculado < 0) {
+				this.restarSaldo(montoCalculado);
+				montoPerdido -= montoCalculado;
+			}
+			else {
+				this.actualizarSaldo(montoCalculado);
+				montoGanado += montoCalculado;
+			}
 		}
+		
+		TipoInversion tipoInversion = null;
+
+		double montoTotal = this.saldo;
+
+		if (montoTotal < saldoInicial) {
+			tipoInversion = TipoInversion.PERDIDA;
+		}
+		else {
+			tipoInversion = TipoInversion.GANANCIA;
+		}
+		
+		Inversion inversion = new Inversion(Double.parseDouble(monto), montoTotal, montoGanado, montoPerdido, porcentajePromedio, tipoInversion);
+		
+		agregarInversionHistorial(inversion);
+		
+		JOptionPane.showMessageDialog(null, "Saldo final: " + this.saldo
+				+ "\nPorcentaje promedio de los " + cantidadDias + " dias: " + porcentajePromedio);
+	}
+	
+	public void agregarInversionHistorial(Inversion inversion) {
+		this.historialInversiones.add(inversion);
 	}
 
 	public CuentaBancaria getCuentaBancaria() {
@@ -109,11 +156,11 @@ public class CuentaInversion {
 		this.fechaCreacion = fechaCreacion;
 	}
 
-	public ArrayList<String> getHistorialInversiones() {
+	public ArrayList<Inversion> getHistorialInversiones() {
 		return historialInversiones;
 	}
 
-	public void setHistorialInversiones(ArrayList<String> historialInversiones) {
+	public void setHistorialInversiones(ArrayList<Inversion> historialInversiones) {
 		this.historialInversiones = historialInversiones;
 	}
 
@@ -123,5 +170,13 @@ public class CuentaInversion {
 
 	public void setSaldo(double saldo) {
 		this.saldo = saldo;
+	}
+	
+	public void restarSaldo(double monto) {
+		this.saldo -= monto;
+	}
+	
+	public void actualizarSaldo(double monto) {
+		this.saldo += monto;
 	}
 }
