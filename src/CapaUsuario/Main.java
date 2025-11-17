@@ -113,20 +113,22 @@ public class Main {
 							break;
 						case 6:
 							opcionElegida = JOptionPane.showOptionDialog(null, "Opciones de inversion"
-									+ (cuentaInversion != null ? cuentaInversion.toString() : "")
+									+ (cuentaInversion != null && cuentaBancaria.isTieneCuentaInversion() == true ? cuentaInversion.toString() : "")
 									, "Inversiones", 0, 0, null, opcionesInversiones, opcionesInversiones[0]);
-							if (opcionElegida == 0) {
+							if (opcionElegida == 0 && cuentaInversion == null) {
 								cuentaInversion = cuentaBancaria.crearCuentaInversion();
 								if (cuentaInversion != null) {
 									banco.agregarCuentasInversion(cuentaInversion);
 								}
 							}
-							if (cuentaInversion == null || cuentaBancaria.isTieneCuentaInversion() == false) {
-								JOptionPane.showMessageDialog(null, "No hay ninguna cuenta de inversion abierta");
-								continue;
-							}
-							if (opcionElegida == 1) {
+							else if (opcionElegida == 1 && cuentaInversion != null) {
 								cuentaInversion.realizarInversion();
+							}
+							else if (opcionElegida == 2 && cuentaInversion != null) {
+								cuentaInversion.verHistorial();
+							}
+							if (cuentaBancaria.isTieneCuentaInversion() == false) {
+								JOptionPane.showMessageDialog(null, "No has abierto ninguna cuenta de inversion");
 							}
 							break;
 						default:

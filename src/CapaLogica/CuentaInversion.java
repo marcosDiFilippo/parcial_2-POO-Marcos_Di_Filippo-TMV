@@ -23,12 +23,20 @@ public class CuentaInversion {
 			JOptionPane.showMessageDialog(null, "El saldo de su cuenta bancaria es 0");
 			return;
 		}
+		String [] opcionesInversion = {"Cuenta Bancaria", "Cuenta Inversion"};
+		int opcionInversion = 0;
+		if (this.saldo > 0) {
+			opcionInversion = JOptionPane.showOptionDialog(null, 
+					"Ya tiene un saldo anteriormente invertido" 
+					+ "\nEl saldo de que cuenta quiere utilizar?", "Opciones", 0, 0, null, opcionesInversion, opcionesInversion[0]);
+		}
 		
 		String monto;
 		boolean esVacio;
 		boolean esNegativo = false;
 		boolean tieneLetras = false;
 		boolean esDecimal = false;
+		boolean esMayorAlLimite = false;
 		
 		do {
 			monto = JOptionPane.showInputDialog("Ingrese el monto de inversion (sin comas ni puntos, solo numeros)");
@@ -47,15 +55,27 @@ public class CuentaInversion {
 				continue;
 			}
 			
-			if (Double.parseDouble(monto) > this.cuentaBancaria.getSaldo()) {
-				JOptionPane.showMessageDialog(null, "Ha ingresado un monto mayor al de su cuenta bancaria");
-				continue;
+			if (opcionInversion == 0) {				
+				if (Double.parseDouble(monto) > this.cuentaBancaria.getSaldo()) {
+					JOptionPane.showMessageDialog(null, "Ha ingresado un monto mayor al de su cuenta bancaria");
+					esMayorAlLimite = true;
+					continue;
+				}
+				esMayorAlLimite = false;
+
+				this.cuentaBancaria.restarSaldo(Double.parseDouble(monto));
+			}
+			else {
+				if (Double.parseDouble(monto) > this.saldo) {
+					JOptionPane.showMessageDialog(null, "Ha ingresado un monto mayor al de su cuenta de inversion");
+					esMayorAlLimite = true;
+					continue;
+				}
+				esMayorAlLimite = false;
 			}
 			
-		} while (tieneLetras == true || esVacio == true || esNegativo == true);
-		
-		this.cuentaBancaria.restarSaldo(Double.parseDouble(monto));
-		
+		} while (tieneLetras == true || esVacio == true || esNegativo == true || esMayorAlLimite == true);
+				
 		this.actualizarSaldo(Double.parseDouble(monto));
 		
 		String cantidadDias;
@@ -89,8 +109,14 @@ public class CuentaInversion {
 				JOptionPane.showMessageDialog(null, "La cantidad de dias no puede ser decimal");
 				continue;
 			}
+			if (Integer.parseInt(cantidadDias) > 365) {
+				JOptionPane.showMessageDialog(null, "El plazo no puede ser de mas de 1 anio");
+				esMayorAlLimite = true;
+				continue;
+			}
+			esMayorAlLimite = false;
 			
-		} while (esVacio == true || tieneLetras == true || esNegativo == true);
+		} while (esVacio == true || tieneLetras == true || esNegativo == true || esDecimal == true | esMayorAlLimite == true);
 		
 		double saldoInicial = this.saldo;
 		double comision = 0;
@@ -108,32 +134,31 @@ public class CuentaInversion {
 			montoCalculado = (this.saldo * comision) / 100;
 			
 			if (montoCalculado < 0) {
-				this.restarSaldo(montoCalculado);
 				montoPerdido -= montoCalculado;
 			}
 			else {
-				this.actualizarSaldo(montoCalculado);
 				montoGanado += montoCalculado;
 			}
 		}
 		
+		double totalInversion = (Double.parseDouble(monto)) + (montoGanado - montoPerdido);
+		
+		this.saldo = totalInversion;
+		
 		TipoInversion tipoInversion = null;
 
-		double montoTotal = this.saldo;
-
-		if (montoTotal < saldoInicial) {
+		if (totalInversion < saldoInicial) {
 			tipoInversion = TipoInversion.PERDIDA;
 		}
 		else {
 			tipoInversion = TipoInversion.GANANCIA;
 		}
 		
-		Inversion inversion = new Inversion(Double.parseDouble(monto), montoTotal, montoGanado, montoPerdido, porcentajePromedio, tipoInversion);
+		Inversion inversion = new Inversion(Double.parseDouble(monto), totalInversion, montoGanado, montoPerdido, porcentajePromedio, tipoInversion);
 		
 		agregarInversionHistorial(inversion);
 		
-		JOptionPane.showMessageDialog(null, "Saldo final: " + this.saldo
-				+ "\nPorcentaje promedio de los " + cantidadDias + " dias: " + porcentajePromedio);
+		JOptionPane.showMessageDialog(null, inversion.toString());
 	}
 	
 	public void verHistorial() {
@@ -145,7 +170,7 @@ public class CuentaInversion {
 		String mensaje = "---Historial---\n";
 		
 		for (Inversion inversion : historialInversiones) {
-			mensaje += inversion.toString() + "\n";
+			mensaje += "---------------------------------------\n" + inversion.toString() + "\n";
 		}
 		
 		JOptionPane.showMessageDialog(null, mensaje);
@@ -198,6 +223,6 @@ public class CuentaInversion {
 	@Override
 	public String toString() {
 		return "\nFechaCreacion: " + fechaCreacion 
-				+ "\nSaldo: " + saldo;
+				+ "\nSaldo: " + String.format("%.2f",  saldo);
 	}
 }

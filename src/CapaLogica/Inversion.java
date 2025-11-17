@@ -80,10 +80,11 @@ public class Inversion {
 	@Override
 	public String toString() {
 		return "Fecha: " + fecha
-				+ "\nMonto Inicial: " + montoInicial 
-				+ "\nMonto Ganado: " + montoGanado
-				+ "\nMonto Perdido: " + montoPerdido 
-				+ "\nMonto Total: " + montoTotal
-				+ "\nPorcentaje Promedio: " + porcentajePromedio;
+				+ "\nTipo inversion: " + this.tipoInversion
+				+ "\nGanancias: " + String.format("%.2f", montoGanado) 
+				+ "\nPerdidas: " + String.format("%.2f", montoPerdido) 
+				+ "\nPorcentaje promedio: " + String.format("%.2f", porcentajePromedio) + "%"
+				+ "\nSaldo inicial: " + String.format("%.2f", montoInicial) 
+				+ "\nSaldo final: " + String.format("%.2f", montoTotal);
 	}
 }

@@ -22,7 +22,7 @@ public abstract class CuentaBancaria {
 	protected Rol rol;
 	protected static ArrayList <String> notificacionesGenerales = new ArrayList<String>();
 	protected ArrayList <String> notificacionesPropias;
-	private boolean tieneCuentaInversion;
+	protected boolean tieneCuentaInversion;
 	
 	public CuentaBancaria(Usuario usuario, String email, String contrasenia) {
 		this.saldo = 0;
@@ -679,6 +679,9 @@ public abstract class CuentaBancaria {
 		}
 		
 		this.tieneCuentaInversion = true;
+		
+		JOptionPane.showMessageDialog(null, "Felicidades!"
+				+ "\nHas abierto con exito tu cuenta de inversion");
 		
 		return new CuentaInversion(this);
 	}
