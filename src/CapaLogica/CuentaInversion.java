@@ -37,6 +37,7 @@ public class CuentaInversion {
 		boolean tieneLetras = false;
 		boolean esDecimal = false;
 		boolean esMayorAlLimite = false;
+		TipoInversion tipoInversion = null;
 		
 		do {
 			monto = JOptionPane.showInputDialog("Ingrese el monto de inversion (sin comas ni puntos, solo numeros)");
@@ -75,8 +76,6 @@ public class CuentaInversion {
 			}
 			
 		} while (tieneLetras == true || esVacio == true || esNegativo == true || esMayorAlLimite == true);
-				
-		this.actualizarSaldo(Double.parseDouble(monto));
 		
 		String cantidadDias;
 		
@@ -118,13 +117,19 @@ public class CuentaInversion {
 			
 		} while (esVacio == true || tieneLetras == true || esNegativo == true || esDecimal == true | esMayorAlLimite == true);
 		
-		double saldoInicial = this.saldo;
+		double saldoInicial = Double.parseDouble(monto);
+
 		double comision = 0;
 		double montoCalculado = 0;
 		float porcentajePromedio = 0;
 		double montoGanado = 0;
 		double montoPerdido = 0;
 		
+		if (opcionInversion == 1) {			
+			this.saldo = this.saldo - Double.parseDouble(monto);
+			JOptionPane.showMessageDialog(null, "El saldo de su cuenta a quedado en $" + this.saldo
+					+ "\nEl monto que reciba de la inversion se sumara al saldo actual");
+		}		
 		
 		for (int i = 0; i < Integer.parseInt(cantidadDias); i++) {
 			comision = Math.random() * 10 - 5;
@@ -141,17 +146,22 @@ public class CuentaInversion {
 			}
 		}
 		
+		if (montoGanado == montoPerdido) {
+			porcentajePromedio = 0;
+		}
+		
 		double totalInversion = (Double.parseDouble(monto)) + (montoGanado - montoPerdido);
 		
-		this.saldo = totalInversion;
+		this.saldo += totalInversion;
 		
-		TipoInversion tipoInversion = null;
-
 		if (totalInversion < saldoInicial) {
 			tipoInversion = TipoInversion.PERDIDA;
 		}
-		else {
+		else if (totalInversion > saldoInicial) {			
 			tipoInversion = TipoInversion.GANANCIA;
+		}
+		else {
+			tipoInversion = TipoInversion.NEUTRA;
 		}
 		
 		Inversion inversion = new Inversion(Double.parseDouble(monto), totalInversion, montoGanado, montoPerdido, porcentajePromedio, tipoInversion);
@@ -174,6 +184,54 @@ public class CuentaInversion {
 		}
 		
 		JOptionPane.showMessageDialog(null, mensaje);
+	}
+	
+	public void retirarDinero() {
+		if (this.saldo == 0) {
+			JOptionPane.showMessageDialog(null, "El saldo de la cuenta de inversion es 0");
+			return;
+		}
+		int opcion = JOptionPane.showConfirmDialog(null, "Realmente quiere retirar dinero de su cuenta de inversion?", null, JOptionPane.YES_NO_OPTION, 0, null);
+		
+		if (opcion == JOptionPane.NO_OPTION) {
+			JOptionPane.showMessageDialog(null, "Has cancelado el retiro de dinero");
+			return;
+		}
+		
+		String monto;
+		boolean esVacio;
+		boolean esNegativo = false;
+		boolean tieneLetras = false;
+		boolean esMayorAlLimite = false;
+		
+		do {
+			monto = JOptionPane.showInputDialog("Ingrese el monto que quiere retirar de la cuenta de inversion");
+			esVacio = Validacion.validarCampoVacio(monto, "monto");
+			if (esVacio == true) {
+				continue;
+			}
+			
+			tieneLetras = Validacion.validarLetrasCampo(monto, "monto");
+			if (tieneLetras == true) {
+				continue;
+			}
+			
+			esNegativo = Validacion.verificarNumeroNegativo(Double.parseDouble(monto), "monto");
+			if (esNegativo == true) {
+				continue;
+			}
+			if (Double.parseDouble(monto) > this.saldo) {
+				JOptionPane.showMessageDialog(null, "Ha ingresado un monto mayor al de su cuenta de inversion");
+				esMayorAlLimite = true;
+				continue;
+			}
+			esMayorAlLimite = false;
+			
+		} while (tieneLetras == true || esVacio == true || esNegativo == true || esMayorAlLimite == true);
+		
+		this.saldo -= Double.parseDouble(monto);
+		
+		this.cuentaBancaria.actualizarSaldo(Double.parseDouble(monto));
 	}
 	
 	public void agregarInversionHistorial(Inversion inversion) {
@@ -210,14 +268,6 @@ public class CuentaInversion {
 
 	public void setSaldo(double saldo) {
 		this.saldo = saldo;
-	}
-	
-	public void restarSaldo(double monto) {
-		this.saldo -= monto;
-	}
-	
-	public void actualizarSaldo(double monto) {
-		this.saldo += monto;
 	}
 
 	@Override

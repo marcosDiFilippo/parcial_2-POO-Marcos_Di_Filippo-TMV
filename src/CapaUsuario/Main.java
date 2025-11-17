@@ -17,11 +17,10 @@ import CapaLogica.Usuario;
 
 public class Main {
 	public static void main(String[] args) {
-		
-		String [] opciones = {"Crear Cuenta Bancaria", "Iniciar Sesion", "Salir"};
+		String [] opciones = {"Registrarse", "Iniciar Sesion", "Salir"};
 		String [] opcionesGenerales = {"Depositar Dinero", "Retirar Dinero", "Transferir Dinero", "Ver Movimientos", "Opciones Cuenta", "Notificaciones", "Inversiones", "Salir"};
 		String [] opcionesMovimiento = {"Ver general", "Mas Recientes", "Por mayor monto", "Por menor monto", "Por Categoria","Salir"};
-		String [] opcionesInversiones = {"Abrir cuenta inversion", "Invertir dinero", "Ver historial", "Salir"};
+		String [] opcionesInversiones = {"Abrir cuenta inversion", "Invertir dinero", "Ver historial", "Retirar dinero de la cuenta","Salir"};
 		String [] movimientosCategoria = {"Depositos", "Retiros", "Transferencias", "Transferencias Recibidas" ,"Salir"};
 		
 		Banco banco = new Banco("Galicia");
@@ -126,6 +125,9 @@ public class Main {
 							}
 							else if (opcionElegida == 2 && cuentaInversion != null) {
 								cuentaInversion.verHistorial();
+							}
+							else if (opcionElegida == 3 && cuentaInversion != null) {
+								cuentaInversion.retirarDinero();
 							}
 							if (cuentaBancaria.isTieneCuentaInversion() == false) {
 								JOptionPane.showMessageDialog(null, "No has abierto ninguna cuenta de inversion");

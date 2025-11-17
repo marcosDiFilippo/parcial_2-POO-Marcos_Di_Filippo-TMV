@@ -1,5 +1,5 @@
 package CapaLogica;
 
 public enum TipoInversion {
-	GANANCIA, PERDIDA;
+	GANANCIA, PERDIDA, NEUTRA;
 }
