@@ -5,8 +5,6 @@ import javax.swing.JOptionPane;
 public class Validacion {
 	
 	public static boolean validarCampoVacio(String campo, String nombreCampo) {
-		
-		
 		if (campo.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " es obligatorio, por favor vuelva ingresar");
 			return true;
