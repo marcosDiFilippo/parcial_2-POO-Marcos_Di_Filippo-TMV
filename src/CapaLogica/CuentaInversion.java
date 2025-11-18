@@ -2,6 +2,8 @@ package CapaLogica;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
@@ -136,7 +138,7 @@ public class CuentaInversion {
 			
 			porcentajePromedio += comision;
 			
-			montoCalculado = (this.saldo * comision) / 100;
+			montoCalculado = (saldoInicial * comision) / 100;
 			
 			if (montoCalculado < 0) {
 				montoPerdido -= montoCalculado;
@@ -164,7 +166,7 @@ public class CuentaInversion {
 			tipoInversion = TipoInversion.NEUTRA;
 		}
 		
-		Inversion inversion = new Inversion(Double.parseDouble(monto), totalInversion, montoGanado, montoPerdido, porcentajePromedio, tipoInversion);
+		Inversion inversion = new Inversion(Double.parseDouble(monto), totalInversion, montoGanado, montoPerdido, porcentajePromedio, tipoInversion, Integer.parseInt(cantidadDias));
 		
 		agregarInversionHistorial(inversion);
 		
@@ -177,9 +179,70 @@ public class CuentaInversion {
 			return;
 		}
 		
+		String [] opcionesHistorial = {"General", "Mas recientes", "por monto (menor a mayor)", "Por monto (mayor a menor)", "Salir"};
+		
+		int opcion = JOptionPane.showOptionDialog(null, "De que manera quiere ver el historial?", "", 0, 0, null, opcionesHistorial, opcionesHistorial[0]);
+		
+		if (opcion == 0) {
+			verHistorialGeneral();
+		}
+		else if (opcion == 1) {
+			verHistorialReciente();
+		}
+		else if (opcion == 2) {
+			verHistorialMenorMayor();
+		}
+		else if (opcion == 3) {
+			verHistorialMayorMenor();
+		}
+	}
+	
+	public void verHistorialGeneral() {	
 		String mensaje = "---Historial---\n";
 		
 		for (Inversion inversion : historialInversiones) {
+			mensaje += "---------------------------------------\n" + inversion.toString() + "\n";
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
+	}
+	
+	public void verHistorialMenorMayor() {
+		ArrayList <Inversion> inversionesFiltradas = (ArrayList<Inversion>) this.historialInversiones.stream()
+				.sorted(Comparator.comparing(Inversion::getMontoTotal))
+				.collect(Collectors.toList());
+		
+		String mensaje = "---Historial---\n";
+		
+		for (Inversion inversion : inversionesFiltradas) {
+			mensaje += "---------------------------------------\n" + inversion.toString() + "\n";
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
+	}
+	
+	public void verHistorialMayorMenor() {
+		ArrayList <Inversion> inversionesFiltradas = (ArrayList<Inversion>) this.historialInversiones.stream()
+				.sorted(Comparator.comparing(Inversion::getMontoTotal).reversed())
+				.collect(Collectors.toList());
+	
+		String mensaje = "---Historial---\n";
+		
+		for (Inversion inversion : inversionesFiltradas) {
+			mensaje += "---------------------------------------\n" + inversion.toString() + "\n";
+		}
+		
+		JOptionPane.showMessageDialog(null, mensaje);
+	}	
+	
+	public void verHistorialReciente() {
+		ArrayList <Inversion> inversionesFiltradas = (ArrayList<Inversion>) this.historialInversiones.stream()
+				.sorted(Comparator.comparing(Inversion::getIdInversion).reversed())
+				.collect(Collectors.toList());
+		
+		String mensaje = "---Historial---\n";
+		
+		for (Inversion inversion : inversionesFiltradas) {
 			mensaje += "---------------------------------------\n" + inversion.toString() + "\n";
 		}
 		
