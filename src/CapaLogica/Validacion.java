@@ -17,7 +17,7 @@ public class Validacion {
 				if (campo.charAt(i) == '.') {
 					continue;
 				}
-				JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " no puede contener letras, por favor vuelva ingresar");
+				JOptionPane.showMessageDialog(null, "El campo de " + nombreCampo + " no es valido, por favor vuelva ingresar");
 				return true;
 			}
 		}

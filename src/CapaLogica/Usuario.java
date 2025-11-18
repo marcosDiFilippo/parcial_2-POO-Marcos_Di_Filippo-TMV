@@ -75,6 +75,7 @@ public class Usuario {
 				fechaDespuesDeHoy = true;
 				continue;
 			}
+			fechaDespuesDeHoy = false;
 		} while (campoVacio == true || fechaDespuesDeHoy == true || tieneLetras == true);
 		
 		Mes mes = (Mes) JOptionPane.showInputDialog(null, "Elija su mes de nacimiento", "", 0, null, Mes.values(), Mes.values()[0]);
