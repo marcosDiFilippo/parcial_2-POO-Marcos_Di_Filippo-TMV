@@ -75,7 +75,10 @@ public class Main {
 							}
 							break;
 						case 2:
-							cuentaBancaria.transferirDinero(banco);
+							Movimiento transferencia = cuentaBancaria.transferirDinero(banco);
+							if (transferencia != null) {
+								cuentaBancaria.getMovimientos().add(transferencia);
+							}
 							break;
 						case 3:
 							if (cuentaBancaria.getMovimientos().size() == 0) {
@@ -111,10 +114,10 @@ public class Main {
 							cuentaBancaria.verNotificaciones();
 							break;
 						case 6:
-							opcionElegida = JOptionPane.showOptionDialog(null, "Opciones de inversion"
-									+ (cuentaInversion != null && cuentaBancaria.isTieneCuentaInversion() == true ? cuentaInversion.toString() : "")
+							opcionElegida = JOptionPane.showOptionDialog(null, "Opciones de inversion\n"
+									+ (cuentaBancaria.isTieneCuentaInversion() == true ? cuentaInversion.toString() : "")
 									, "Inversiones", 0, 0, null, opcionesInversiones, opcionesInversiones[0]);
-							if (opcionElegida == 0 && cuentaInversion == null) {
+							if (opcionElegida == 0 && cuentaBancaria.isTieneCuentaInversion() == false) {
 								cuentaInversion = cuentaBancaria.crearCuentaInversion();
 								if (cuentaInversion != null) {
 									banco.agregarCuentasInversion(cuentaInversion);

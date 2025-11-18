@@ -335,7 +335,7 @@ public class CuentaInversion {
 
 	@Override
 	public String toString() {
-		return "\nFechaCreacion: " + fechaCreacion 
+		return "FechaCreacion: " + fechaCreacion 
 				+ "\nSaldo: " + String.format("%.2f",  saldo);
 	}
 }

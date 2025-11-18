@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 public class CuentaAdministrador extends CuentaBancaria {
-	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver cajeros disponibles", "Ver movimientos de cajero", "Dar de baja cajero", "Ver cuentas", "Salir"};
+	private String [] permisos = {"Eliminar cuenta", "Cambiar roles", "Agregar cajero", "Ver cajeros disponibles", "Ver movimientos de cajero", "Dar de baja cajero", "Ver cuentas", "Ver cuentas inversion" ,"Salir"};
 
 	public CuentaAdministrador(Usuario usuario, String email, String contrasenia) {
 		super(usuario, email, contrasenia);
@@ -51,13 +51,32 @@ public class CuentaAdministrador extends CuentaBancaria {
 			JOptionPane.showMessageDialog(null, mensaje.isEmpty() ? "No hay cajeros cargados" : mensaje);
 		}
 		else if (opcion == 4) {
-			Cajero.verMovimientosCajero();
+			String mensaje = "Movimientos: \n";
+			
+			String [] cajerosArray = Cajero.incluirCajeros();
+	 		
+			opcion = JOptionPane.showOptionDialog(null, "Elija el cajero del cual quiere ver sus movimientos", "Cajeros", 0, 0, null, cajerosArray, cajerosArray[0]);
+			
+			Cajero cajero = Cajero.getCajeros().get(opcion);
+			
+			if (cajero.getMovimientosCajero().size() == 0) {
+				JOptionPane.showMessageDialog(null, "No hay movimientos cargados en este cajero");
+				return;
+			}
+			for (Movimiento movimiento : cajero.getMovimientosCajero()) {
+				mensaje += movimiento.toString() + "\n";
+			}
+			
+			JOptionPane.showMessageDialog(null, mensaje);
 		}
 		else if (opcion == 5) {
 			darBajaCajero();
 		}
 		else if (opcion == 6) {
 			verCuentas(banco);
+		}
+		else if (opcion == 7) {
+			verCuentasInversion(banco);
 		}
 		else {
 			return;
@@ -243,6 +262,40 @@ public class CuentaAdministrador extends CuentaBancaria {
 		}
 		
 		JOptionPane.showMessageDialog(null, mensaje);
+	}
+	
+	public void verCuentasInversion(Banco banco) {
+		if (banco.getCuentasInversion().size() == 0) {
+			JOptionPane.showMessageDialog(null, "No hay cuentas de inversion cargadas");
+			return;
+		}
+		
+		CuentaInversion cuentaInversionElegida = null;
+		
+		String [] cuentas = new String[banco.getCuentasInversion().size()];
+		
+		for (int i = 0; i < cuentas.length; i++) {
+			cuentas[i] = banco.getCuentasInversion().get(i).getCuentaBancaria().getEmail();
+		}
+		
+		String cuentaElegida = (String) JOptionPane.showInputDialog(null, "Elija el email de la cuenta que quiere ver sus datos", "Cuentas", numeroCuentaBancaria, null, cuentas, cuentas[0]);
+	
+		for (CuentaInversion cuentaInversion : banco.getCuentasInversion()) {
+			String emailCoincidente = cuentaInversion.getCuentaBancaria().getEmail();
+			 
+			if (cuentaElegida.equals(emailCoincidente)) {
+				
+				cuentaInversionElegida = cuentaInversion;
+				break;
+			}
+		}
+		if (cuentaInversionElegida == null) {
+			JOptionPane.showMessageDialog(null, "No se ha encontrado ninguna cuenta");
+			return;
+		}
+		JOptionPane.showMessageDialog(null, cuentaInversionElegida.getCuentaBancaria().toString() 
+				+ "\n--------------------------------------------------------------------------"
+				+ "\n" + cuentaInversionElegida.toString());
 	}
 
 	public CuentaAdministrador(CuentaBancaria cuentaBancaria) {
