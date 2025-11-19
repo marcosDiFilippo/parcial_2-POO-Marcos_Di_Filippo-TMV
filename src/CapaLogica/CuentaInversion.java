@@ -129,8 +129,10 @@ public class CuentaInversion {
 		
 		if (opcionInversion == 1) {			
 			this.saldo = this.saldo - Double.parseDouble(monto);
-			JOptionPane.showMessageDialog(null, "El saldo de su cuenta a quedado en $" + this.saldo
-					+ "\nEl monto que reciba de la inversion se sumara al saldo actual");
+			JOptionPane.showMessageDialog(null, 
+			"El saldo de su cuenta a quedado en $" 
+					+ this.saldo
+					+ "\nEl monto que reciba de la inversion se sumara o restara al saldo actual");
 		}		
 		
 		for (int i = 0; i < Integer.parseInt(cantidadDias); i++) {

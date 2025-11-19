@@ -264,12 +264,12 @@ public abstract class CuentaBancaria {
 
 			total = Double.parseDouble(monto) - comision;
 		}
-		if (total > 0) {
+		if (total > 100000) {
 			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es mayor a 100000, asique se ha aplicado una comision de $" + comision + "\nTotal: " + total);			
 		}
 		else {
 			total = Double.parseDouble(monto);
-			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es menor a 100000, asique no se ha aplicado ninguna comision" 
+			JOptionPane.showMessageDialog(null, "El monto depositado --" + Double.parseDouble(monto) + "-- es menor o igual a 100000, asique no se ha aplicado ninguna comision" 
 			+ "\nTotal: " + total);	
 		}
 		

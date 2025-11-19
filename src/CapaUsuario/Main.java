@@ -123,6 +123,9 @@ public class Main {
 									banco.agregarCuentasInversion(cuentaInversion);
 								}
 							}
+							else if (opcionElegida == 0 && cuentaBancaria.isTieneCuentaInversion() == true) {
+								JOptionPane.showMessageDialog(null, "Ya has abierto una cuenta de inversion!");
+							}
 							else if (opcionElegida == 1 && cuentaInversion != null) {
 								cuentaInversion.realizarInversion();
 							}
